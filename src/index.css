@@ -129,6 +129,23 @@
   .animate-delay-500 {
     animation-delay: 500ms;
   }
+  
+  /* New floating animation */
+  @keyframes float {
+    0% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-20px);
+    }
+    100% {
+      transform: translateY(0px);
+    }
+  }
+  
+  .animate-float {
+    animation: float 10s ease-in-out infinite;
+  }
 }
 
 /* Default styles for form elements */

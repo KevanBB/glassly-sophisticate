@@ -1,13 +1,16 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Home, Bell, User, MessageCircle, Search } from 'lucide-react';
+import { Home, Bell, User, MessageCircle, Search, DollarSign } from 'lucide-react';
 import DashboardCard from '@/components/dashboard/DashboardCard';
 import BottomNavigation from '@/components/dashboard/BottomNavigation';
 import NotificationCard from '@/components/dashboard/NotificationCard';
 import ActivityCard from '@/components/dashboard/ActivityCard';
 import MatchesCard from '@/components/dashboard/MatchesCard';
 import QuickActionsCard from '@/components/dashboard/QuickActionsCard';
+import TributeCard from '@/components/dashboard/TributeCard';
+import FloatingActionButton from '@/components/ui/FloatingActionButton';
+import { toast } from 'sonner';
 
 // Mock data - would come from API in production
 const mockNotifications = [
@@ -35,9 +38,15 @@ const quickActions = [
   { id: 4, title: 'Preferences', icon: 'Settings', color: 'bg-amber-500' },
 ];
 
+const recentTributes = [
+  { id: 1, amount: 25, recipient: 'DomMaster97', date: '2 days ago', avatar: 'https://i.pravatar.cc/150?img=1' },
+  { id: 2, amount: 10, recipient: 'SubLover23', date: '1 week ago', avatar: 'https://i.pravatar.cc/150?img=2' },
+];
+
 const Dashboard = () => {
   const [time, setTime] = useState(new Date());
   const [backgroundClass, setBackgroundClass] = useState('from-dark-200 to-dark');
+  const [showTributeForm, setShowTributeForm] = useState(false);
   
   // Update time and background based on time of day
   useEffect(() => {
@@ -57,6 +66,31 @@ const Dashboard = () => {
     
     return () => clearInterval(interval);
   }, []);
+
+  // FAB actions
+  const handleFabClick = () => {
+    setShowTributeForm(true);
+    toast('Quick tribute activated', {
+      description: 'Send a tribute to your favorite domme',
+    });
+  };
+
+  const fabSubActions = [
+    { 
+      icon: <DollarSign size={16} />, 
+      label: 'Quick $20 Tribute', 
+      color: 'text-white', 
+      onClick: () => {
+        toast.success('Quick $20 tribute sent!');
+      }
+    },
+    { 
+      icon: <DollarSign size={16} />, 
+      label: 'Custom Tribute', 
+      color: 'text-white', 
+      onClick: () => setShowTributeForm(true)
+    },
+  ];
 
   return (
     <motion.div 
@@ -129,16 +163,33 @@ const Dashboard = () => {
           <ActivityCard activities={mockActivity} />
         </motion.div>
         
-        {/* Matches */}
+        {/* Tributes */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
+        >
+          <TributeCard recentTributes={recentTributes} />
+        </motion.div>
+        
+        {/* Matches */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.6 }}
           className="col-span-1 md:col-span-2"
         >
           <MatchesCard matches={mockMatches} />
         </motion.div>
       </main>
+      
+      {/* Floating Action Button */}
+      <FloatingActionButton 
+        icon={<DollarSign size={24} />}
+        onClick={handleFabClick}
+        position="bottom-right"
+        subActions={fabSubActions}
+      />
       
       {/* Bottom Navigation */}
       <BottomNavigation />
