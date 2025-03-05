@@ -9,6 +9,80 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      contacts: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          destruct_after: unknown | null
+          id: string
+          is_encrypted: boolean | null
+          is_self_destruct: boolean | null
+          media_type: string | null
+          media_url: string | null
+          read_at: string | null
+          receiver_id: string
+          replied_to_id: string | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          destruct_after?: unknown | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_self_destruct?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          read_at?: string | null
+          receiver_id: string
+          replied_to_id?: string | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          destruct_after?: unknown | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_self_destruct?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          read_at?: string | null
+          receiver_id?: string
+          replied_to_id?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_replied_to_id_fkey"
+            columns: ["replied_to_id"]
+            isOneToOne: false
+            referencedRelation: "messages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
