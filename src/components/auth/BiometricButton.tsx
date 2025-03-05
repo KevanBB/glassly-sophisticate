@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, HTMLMotionProps } from 'framer-motion';
 import { Fingerprint } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface BiometricButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
+// Define a type that combines the motion button props with our custom props
+interface BiometricButtonProps extends Omit<HTMLMotionProps<"button">, 'type'> {
   type?: 'faceid' | 'touchid';
   buttonType?: 'submit' | 'reset' | 'button';
 }
