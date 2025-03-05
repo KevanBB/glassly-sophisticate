@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Avatar } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { toast } from 'sonner';
+import FeaturedContentSelector from './FeaturedContentSelector';
 
 interface Post {
   id: string;
@@ -34,13 +35,18 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
   const [posts, setPosts] = useState<Post[]>([]);
   const [newPostContent, setNewPostContent] = useState('');
   const [featuredPosts, setFeaturedPosts] = useState<Post[]>([]);
+  const [showFeaturedSelector, setShowFeaturedSelector] = useState(false);
+  const [isOwnProfile, setIsOwnProfile] = useState(false);
   
   useEffect(() => {
+    // Set whether this is the user's own profile
+    setIsOwnProfile(user?.id === profile?.id);
+    
     // This would normally fetch posts from the database
     const mockPosts: Post[] = [
       {
         id: '1',
-        userId: 'user1',
+        userId: profile?.id || 'user1',
         userName: 'Self',
         userAvatar: profile?.avatar_url,
         content: 'Just updated my profile with some new interests! Check them out and let me know what you think.',
@@ -64,7 +70,7 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
       },
       {
         id: '3',
-        userId: 'user1',
+        userId: profile?.id || 'user1',
         userName: 'Self',
         userAvatar: profile?.avatar_url,
         content: 'Just attended an amazing workshop on communication. Learned so much!',
@@ -123,23 +129,20 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
   
   const handleToggleFeature = (postId: string) => {
     // This would normally update the database
-    setPosts(posts.map(post => {
+    const updatedPosts = posts.map(post => {
       if (post.id === postId) {
-        const updated = { ...post, isFeatured: !post.isFeatured };
-        
-        // Update featured posts list
-        if (updated.isFeatured) {
-          setFeaturedPosts([...featuredPosts, updated]);
-        } else {
-          setFeaturedPosts(featuredPosts.filter(p => p.id !== postId));
-        }
-        
-        return updated;
+        return { ...post, isFeatured: !post.isFeatured };
       }
       return post;
-    }));
+    });
     
+    setPosts(updatedPosts);
+    setFeaturedPosts(updatedPosts.filter(post => post.isFeatured));
     toast.success('Featured posts updated');
+  };
+  
+  const openFeaturedSelector = () => {
+    setShowFeaturedSelector(true);
   };
   
   const handleDeletePost = (postId: string) => {
@@ -170,10 +173,24 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
   
   return (
     <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-medium text-white mb-4">Wall</h2>
+      <div className="flex justify-between items-center">
+        <h2 className="text-xl font-medium text-white">Wall</h2>
         
-        {/* Create post */}
+        {isOwnProfile && (
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={openFeaturedSelector}
+            className="border-amber-500/30 bg-amber-500/10 text-amber-200 hover:bg-amber-500/20"
+          >
+            <Star size={16} className="mr-1.5 text-amber-400" />
+            Manage Featured Posts
+          </Button>
+        )}
+      </div>
+      
+      {/* Create post */}
+      {isOwnProfile && (
         <GlassPanel className="p-4">
           <Textarea 
             placeholder="What's on your mind?"
@@ -207,7 +224,7 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
             </Button>
           </div>
         </GlassPanel>
-      </div>
+      )}
       
       {/* Featured posts */}
       {featuredPosts.length > 0 && (
@@ -234,26 +251,28 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
                         <p className="text-white/60 text-xs">{formatTimestamp(post.timestamp)}</p>
                       </div>
                       
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-white/60 hover:text-white hover:bg-white/10 p-1 h-auto"
-                          >
-                            <MoreHorizontal size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-40">
-                          <DropdownMenuItem onClick={() => handleToggleFeature(post.id)}>
-                            <Star className="mr-2 h-4 w-4" />
-                            <span>Unfeature</span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeletePost(post.id)} className="text-red-500">
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      {isOwnProfile && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button 
+                              variant="ghost" 
+                              size="sm" 
+                              className="text-white/60 hover:text-white hover:bg-white/10 p-1 h-auto"
+                            >
+                              <MoreHorizontal size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-40">
+                            <DropdownMenuItem onClick={() => handleToggleFeature(post.id)}>
+                              <Star className="mr-2 h-4 w-4 text-amber-400" />
+                              <span>Unfeature</span>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleDeletePost(post.id)} className="text-red-500">
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                     
                     <p className="text-white mt-2 whitespace-pre-wrap">{post.content}</p>
@@ -324,26 +343,28 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
                     <p className="text-white/60 text-xs">{formatTimestamp(post.timestamp)}</p>
                   </div>
                   
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-white/60 hover:text-white hover:bg-white/10 p-1 h-auto"
-                      >
-                        <MoreHorizontal size={16} />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-40">
-                      <DropdownMenuItem onClick={() => handleToggleFeature(post.id)}>
-                        <Star className="mr-2 h-4 w-4" />
-                        <span>{post.isFeatured ? 'Unfeature' : 'Feature'}</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => handleDeletePost(post.id)} className="text-red-500">
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  {isOwnProfile && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button 
+                          variant="ghost" 
+                          size="sm" 
+                          className="text-white/60 hover:text-white hover:bg-white/10 p-1 h-auto"
+                        >
+                          <MoreHorizontal size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-40">
+                        <DropdownMenuItem onClick={() => handleToggleFeature(post.id)}>
+                          <Star className="mr-2 h-4 w-4" />
+                          <span>{post.isFeatured ? 'Unfeature' : 'Feature'}</span>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleDeletePost(post.id)} className="text-red-500">
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
                 
                 <p className="text-white mt-2 whitespace-pre-wrap">{post.content}</p>
@@ -397,9 +418,11 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
           <div className="text-center py-6">
             <MessageSquare size={36} className="text-white/20 mx-auto mb-2" />
             <p className="text-white/60">No posts yet</p>
-            <Button className="mt-3">
-              <Plus size={16} className="mr-1" /> Create Your First Post
-            </Button>
+            {isOwnProfile && (
+              <Button className="mt-3">
+                <Plus size={16} className="mr-1" /> Create Your First Post
+              </Button>
+            )}
           </div>
         )}
       </GlassPanel>
@@ -414,6 +437,14 @@ const WallTab = ({ profile, user, isEditing }: WallTabProps) => {
           </Button>
         </div>
       )}
+      
+      <FeaturedContentSelector 
+        open={showFeaturedSelector}
+        userId={user?.id}
+        posts={posts}
+        onClose={() => setShowFeaturedSelector(false)}
+        onFeatureToggle={handleToggleFeature}
+      />
     </div>
   );
 };
