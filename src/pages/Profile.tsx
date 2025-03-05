@@ -15,27 +15,6 @@ import GlassPanel from '@/components/ui/GlassPanel';
 import { Shield, Lock, User, Activity, MessageSquare, Settings, Award, PenSquare } from 'lucide-react';
 import BadgesDisplay from '@/components/profile/BadgesDisplay';
 import PrivateNotes from '@/components/profile/PrivateNotes';
-import { supabase } from '@/integrations/supabase/client';
-
-// Create a new user_notes table in Supabase when loading the page
-const ensureUserNotesTable = async () => {
-  try {
-    // Check if the table exists
-    const { error } = await supabase
-      .from('user_notes')
-      .select('id')
-      .limit(1);
-    
-    // If there's an error, it might mean the table doesn't exist
-    if (error && error.code === '42P01') {
-      console.log('Creating user_notes table');
-      // Table doesn't exist, create it
-      await supabase.rpc('create_user_notes_table');
-    }
-  } catch (error) {
-    console.error('Error checking or creating user_notes table:', error);
-  }
-};
 
 const ProfilePage = () => {
   const { user } = useAuth();
@@ -47,8 +26,6 @@ const ProfilePage = () => {
   useEffect(() => {
     if (user && profile) {
       setIsOwnProfile(user.id === profile.id);
-      // Create the user_notes table if it doesn't exist
-      ensureUserNotesTable();
     }
   }, [user, profile]);
 

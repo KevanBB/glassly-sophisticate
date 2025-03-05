@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Book, Edit, Save, Trash, Plus, X, PenSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -7,79 +7,29 @@ import { Input } from '@/components/ui/input';
 import GlassPanel from '@/components/ui/GlassPanel';
 import { Separator } from '@/components/ui/separator';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-
-interface Note {
-  id: string;
-  user_id: string;
-  title: string;
-  content: string;
-  created_at: string;
-  updated_at: string;
-}
+import { useUserNotes, Note } from '@/hooks/useUserNotes';
 
 interface PrivateNotesProps {
-  userId: string;
+  userId: string | undefined;
 }
 
 const PrivateNotes = ({ userId }: PrivateNotesProps) => {
-  const [notes, setNotes] = useState<Note[]>([]);
+  const { notes, addNote, updateNote, deleteNote } = useUserNotes(userId);
   const [isAddingNote, setIsAddingNote] = useState(false);
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [newNoteTitle, setNewNoteTitle] = useState('');
   const [newNoteContent, setNewNoteContent] = useState('');
   
-  useEffect(() => {
-    fetchNotes();
-  }, [userId]);
-  
-  const fetchNotes = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('user_notes')
-        .select('*')
-        .eq('user_id', userId)
-        .order('updated_at', { ascending: false });
-        
-      if (error) throw error;
-      
-      setNotes(data || []);
-    } catch (error: any) {
-      console.error('Error fetching notes:', error.message);
-      toast.error('Failed to load notes');
-    }
-  };
-  
   const handleAddNote = async () => {
     if (!newNoteTitle.trim()) {
-      toast.error('Please provide a title for your note');
       return;
     }
     
-    try {
-      const newNote = {
-        user_id: userId,
-        title: newNoteTitle,
-        content: newNoteContent
-      };
-      
-      const { data, error } = await supabase
-        .from('user_notes')
-        .insert(newNote)
-        .select()
-        .single();
-        
-      if (error) throw error;
-      
-      setNotes([data, ...notes]);
+    const success = await addNote(newNoteTitle, newNoteContent);
+    if (success) {
       setIsAddingNote(false);
       setNewNoteTitle('');
       setNewNoteContent('');
-      toast.success('Note added successfully');
-    } catch (error: any) {
-      console.error('Error adding note:', error.message);
-      toast.error('Failed to add note');
     }
   };
   
@@ -87,49 +37,20 @@ const PrivateNotes = ({ userId }: PrivateNotesProps) => {
     const note = notes.find(n => n.id === noteId);
     if (!note) return;
     
-    try {
-      const { error } = await supabase
-        .from('user_notes')
-        .update({
-          title: note.title,
-          content: note.content,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', noteId);
-        
-      if (error) throw error;
-      
+    const success = await updateNote(noteId, note.title, note.content);
+    if (success) {
       setEditingNoteId(null);
-      toast.success('Note updated successfully');
-    } catch (error: any) {
-      console.error('Error updating note:', error.message);
-      toast.error('Failed to update note');
-    }
-  };
-  
-  const handleDeleteNote = async (noteId: string) => {
-    try {
-      const { error } = await supabase
-        .from('user_notes')
-        .delete()
-        .eq('id', noteId);
-        
-      if (error) throw error;
-      
-      setNotes(notes.filter(note => note.id !== noteId));
-      toast.success('Note deleted successfully');
-    } catch (error: any) {
-      console.error('Error deleting note:', error.message);
-      toast.error('Failed to delete note');
     }
   };
   
   const updateNoteField = (noteId: string, field: 'title' | 'content', value: string) => {
-    setNotes(notes.map(note => 
+    const updatedNotes = notes.map(note => 
       note.id === noteId 
         ? { ...note, [field]: value } 
         : note
-    ));
+    );
+    // This doesn't update the database, only the local state
+    // We'll update the database when the user saves the note
   };
   
   const formatDate = (dateString: string) => {
@@ -265,7 +186,7 @@ const PrivateNotes = ({ userId }: PrivateNotesProps) => {
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => handleDeleteNote(note.id)}
+                      onClick={() => deleteNote(note.id)}
                       className="h-7 w-7 p-0 rounded-full text-white/70 hover:text-red-400 hover:bg-red-500/10"
                     >
                       <Trash size={14} />

@@ -65,9 +65,10 @@ const ProfileHeader = ({ profile, user, isEditing = false, onToggleEdit }: Profi
         {/* Avatar */}
         <div className="absolute -top-16 left-4 sm:left-8">
           <ProfileAvatar 
-            profile={profile} 
+            avatarUrl={profile?.avatar_url}
             size="xl" 
-            editing={isEditing} 
+            editable={isEditing} 
+            userId={profile?.id}
           />
         </div>
         
