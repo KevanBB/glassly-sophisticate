@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { User, Settings, CreditCard, LogOut } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 
 interface UserMenuProps {
   profile: any;
@@ -12,6 +14,7 @@ interface UserMenuProps {
 
 const UserMenu = ({ profile, user }: UserMenuProps) => {
   const { signOut } = useAuth();
+  const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const handleSignOut = async () => {
@@ -20,8 +23,8 @@ const UserMenu = ({ profile, user }: UserMenuProps) => {
   };
 
   const navigateTo = (path: string) => {
-    toast.info(`Navigating to ${path}`);
-    // Actual navigation would go here
+    navigate(path);
+    setDropdownOpen(false);
   };
 
   return (
