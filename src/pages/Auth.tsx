@@ -6,9 +6,6 @@ import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 import AuthCard from '@/components/auth/AuthCard';
 
-// Import necessary dependencies
-<lov-add-dependency>framer-motion@latest</lov-add-dependency>
-
 const Auth = () => {
   const location = useLocation();
   const navigate = useNavigate();

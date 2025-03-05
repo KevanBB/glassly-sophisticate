@@ -4,12 +4,14 @@ import { motion } from 'framer-motion';
 import { Fingerprint } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface BiometricButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface BiometricButtonProps extends Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
   type?: 'faceid' | 'touchid';
+  buttonType?: 'submit' | 'reset' | 'button';
 }
 
 const BiometricButton = ({
   type = 'touchid',
+  buttonType = 'button',
   className,
   ...props
 }: BiometricButtonProps) => {
@@ -17,6 +19,7 @@ const BiometricButton = ({
   
   return (
     <motion.button
+      type={buttonType}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       className={cn(
