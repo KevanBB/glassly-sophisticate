@@ -1,35 +1,32 @@
-
 import React, { useEffect, useState } from 'react';
 import { useLocation, Navigate, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import LoginForm from '@/components/auth/LoginForm';
 import RegisterForm from '@/components/auth/RegisterForm';
 import AuthCard from '@/components/auth/AuthCard';
-
 const Auth = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isLoginPage = location.pathname === '/login';
   const isRegisterPage = location.pathname === '/register';
-  
+
   // If we're at /auth, redirect to /login
   if (location.pathname === '/auth') {
     return <Navigate to="/login" replace />;
   }
-  
+
   // Placeholder authentication check logic
   const isAuthenticated = false;
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="min-h-screen relative flex items-center justify-center px-4 py-12 overflow-hidden"
-    >
+  return <motion.div initial={{
+    opacity: 0
+  }} animate={{
+    opacity: 1
+  }} exit={{
+    opacity: 0
+  }} className="min-h-screen relative flex items-center justify-center px-4 py-12 overflow-hidden">
       {/* Background gradient and effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-dark-200 to-dark -z-10">
         {/* Animated gradient orbs for background effect */}
@@ -42,12 +39,16 @@ const Auth = () => {
       
       {/* Brand logo at the top */}
       <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-50">
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-          className="flex items-center space-x-2"
-        >
+        <motion.div initial={{
+        opacity: 0,
+        y: -20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} transition={{
+        delay: 0.2,
+        duration: 0.5
+      }} className="flex items-center space-x-2 my-0 mx-0 px-0 py-0">
           {/* Placeholder for logo */}
           <div className="w-10 h-10 bg-brand rounded-lg flex items-center justify-center shadow-lg">
             <span className="text-white font-bold text-xl">S</span>
@@ -58,45 +59,39 @@ const Auth = () => {
 
       {/* Auth card container - will animate between login/register */}
       <AnimatePresence mode="wait">
-        <motion.div
-          key={isLoginPage ? 'login' : 'register'}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          transition={{ duration: 0.3 }}
-          className="w-full max-w-md"
-        >
-          {isLoginPage && (
-            <AuthCard 
-              title="Welcome back" 
-              subtitle="Sign in to your account to continue"
-            >
+        <motion.div key={isLoginPage ? 'login' : 'register'} initial={{
+        opacity: 0,
+        y: 20
+      }} animate={{
+        opacity: 1,
+        y: 0
+      }} exit={{
+        opacity: 0,
+        y: -20
+      }} transition={{
+        duration: 0.3
+      }} className="w-full max-w-md">
+          {isLoginPage && <AuthCard title="Welcome back" subtitle="Sign in to your account to continue">
               <LoginForm />
-            </AuthCard>
-          )}
+            </AuthCard>}
           
-          {isRegisterPage && (
-            <AuthCard 
-              title="Create your account" 
-              subtitle="Join SubSpace to experience the platform"
-            >
+          {isRegisterPage && <AuthCard title="Create your account" subtitle="Join SubSpace to experience the platform">
               <RegisterForm />
-            </AuthCard>
-          )}
+            </AuthCard>}
         </motion.div>
       </AnimatePresence>
       
       {/* Footer area */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7, duration: 0.5 }}
-        className="absolute bottom-6 left-0 right-0 text-center text-white/40 text-xs"
-      >
+      <motion.div initial={{
+      opacity: 0
+    }} animate={{
+      opacity: 1
+    }} transition={{
+      delay: 0.7,
+      duration: 0.5
+    }} className="absolute bottom-6 left-0 right-0 text-center text-white/40 text-xs">
         © {new Date().getFullYear()} SubSpace. All rights reserved.
       </motion.div>
-    </motion.div>
-  );
+    </motion.div>;
 };
-
 export default Auth;
