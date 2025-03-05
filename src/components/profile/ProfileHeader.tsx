@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Edit2, Mail, UserPlus, Calendar } from 'lucide-react';
@@ -67,6 +68,7 @@ const ProfileHeader = ({ profile, user, isEditing = false, onToggleEdit }: Profi
             avatarUrl={profile?.avatar_url}
             editing={isEditing} 
             userId={profile?.id}
+            size="lg"
           />
         </div>
         

@@ -9,10 +9,19 @@ export interface ProfileAvatarProps {
   avatarUrl?: string;
   editing?: boolean;
   userId?: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-const ProfileAvatar = ({ avatarUrl, editing = false, userId }: ProfileAvatarProps) => {
+const ProfileAvatar = ({ avatarUrl, editing = false, userId, size = 'lg' }: ProfileAvatarProps) => {
   const [uploading, setUploading] = useState(false);
+  
+  // Determine avatar size based on prop
+  const sizeClass = {
+    sm: 'h-12 w-12',
+    md: 'h-16 w-16',
+    lg: 'h-24 w-24',
+    xl: 'h-32 w-32'
+  };
   
   const uploadAvatar = async (event: React.ChangeEvent<HTMLInputElement>) => {
     try {
@@ -65,7 +74,7 @@ const ProfileAvatar = ({ avatarUrl, editing = false, userId }: ProfileAvatarProp
   
   return (
     <div className="relative">
-      <Avatar className="h-24 w-24 border-4 border-dark bg-dark-200">
+      <Avatar className={`border-4 border-dark bg-dark-200 ${sizeClass[size]}`}>
         <AvatarImage src={avatarUrl || undefined} alt="Profile" />
         <AvatarFallback className="bg-primary/20 text-primary text-lg">
           {userId?.substring(0, 2).toUpperCase() || '?'}

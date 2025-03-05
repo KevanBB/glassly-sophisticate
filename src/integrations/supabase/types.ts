@@ -130,50 +130,65 @@ export type Database = {
       }
       profiles: {
         Row: {
+          age: string | null
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
           display_name: string | null
           experience_level: string | null
           first_name: string | null
+          gender: string | null
           id: string
           is_active: boolean | null
           joined_at: string | null
           kinks_fetishes: string[] | null
           last_active: string | null
           last_name: string | null
+          location: string | null
+          looking_for: string[] | null
+          orientation: string | null
           role: string | null
           updated_at: string | null
         }
         Insert: {
+          age?: string | null
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
           display_name?: string | null
           experience_level?: string | null
           first_name?: string | null
+          gender?: string | null
           id: string
           is_active?: boolean | null
           joined_at?: string | null
           kinks_fetishes?: string[] | null
           last_active?: string | null
           last_name?: string | null
+          location?: string | null
+          looking_for?: string[] | null
+          orientation?: string | null
           role?: string | null
           updated_at?: string | null
         }
         Update: {
+          age?: string | null
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
           display_name?: string | null
           experience_level?: string | null
           first_name?: string | null
+          gender?: string | null
           id?: string
           is_active?: boolean | null
           joined_at?: string | null
           kinks_fetishes?: string[] | null
           last_active?: string | null
           last_name?: string | null
+          location?: string | null
+          looking_for?: string[] | null
+          orientation?: string | null
           role?: string | null
           updated_at?: string | null
         }
