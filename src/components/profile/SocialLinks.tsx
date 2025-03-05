@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, Plus, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -16,11 +15,12 @@ interface SocialLink {
 }
 
 interface SocialLinksProps {
+  profile?: any; // Added profile prop
   editing: boolean;
   userId: string;
 }
 
-const SocialLinks = ({ editing, userId }: SocialLinksProps) => {
+const SocialLinks = ({ profile, editing, userId }: SocialLinksProps) => {
   const [links, setLinks] = useState<SocialLink[]>([]);
   const [newLink, setNewLink] = useState({ platform: '', url: '' });
   

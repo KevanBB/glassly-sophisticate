@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -6,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useRoleColors } from '@/hooks/useRoleColors';
 
 interface RolePreferencesProps {
+  profile?: any; // Added profile prop
   role: string;
   experienceLevel: string;
   editing: boolean;
@@ -14,6 +14,7 @@ interface RolePreferencesProps {
 }
 
 const RolePreferences = ({ 
+  profile,
   role, 
   experienceLevel, 
   editing, 

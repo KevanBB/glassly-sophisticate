@@ -1,4 +1,3 @@
-
 import React, { KeyboardEvent, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -9,13 +8,15 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
 interface KinksFetishesListProps {
+  profile?: any; // Added profile prop
   userId: string;
   kinksFetishes: string[];
   editing: boolean;
+  isOwnProfile?: boolean; // Added isOwnProfile prop
   onKinksUpdated: (updatedKinks: string[]) => void;
 }
 
-const KinksFetishesList = ({ userId, kinksFetishes, editing, onKinksUpdated }: KinksFetishesListProps) => {
+const KinksFetishesList = ({ profile, userId, kinksFetishes, editing, isOwnProfile, onKinksUpdated }: KinksFetishesListProps) => {
   const [newKink, setNewKink] = useState("");
 
   const handleKinkInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {

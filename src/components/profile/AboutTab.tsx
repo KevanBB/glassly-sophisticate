@@ -61,6 +61,20 @@ const AboutTab = ({ profile, user, isEditing, isOwnProfile = true, onSave }: Abo
     }));
   };
   
+  const handleRoleChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      role: value
+    }));
+  };
+  
+  const handleExperienceLevelChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      experienceLevel: value
+    }));
+  };
+  
   const handleSubmit = async () => {
     try {
       if (!profile || !profile.id) {
@@ -135,18 +149,25 @@ const AboutTab = ({ profile, user, isEditing, isOwnProfile = true, onSave }: Abo
       {(isOwnProfile || canViewRole) && (
         <RolePreferences 
           profile={profile} 
+          role={formData.role}
+          experienceLevel={formData.experienceLevel}
           editing={isEditing} 
-          formData={formData} 
-          handleChange={handleChange}
+          onRoleChange={handleRoleChange}
+          onExperienceLevelChange={handleExperienceLevelChange}
         />
       )}
       
       {(isOwnProfile || canViewInterests) && (
         <KinksFetishesList 
           profile={profile} 
-          user={user}
+          userId={user?.id || ''}
+          kinksFetishes={profile?.kinks_fetishes || []}
           editing={isEditing} 
           isOwnProfile={isOwnProfile}
+          onKinksUpdated={(updatedKinks) => {
+            // This is a placeholder for the actual implementation
+            console.log('Kinks updated:', updatedKinks);
+          }}
         />
       )}
       
@@ -154,6 +175,7 @@ const AboutTab = ({ profile, user, isEditing, isOwnProfile = true, onSave }: Abo
         <SocialLinks 
           profile={profile} 
           editing={isEditing} 
+          userId={user?.id || ''}
         />
       )}
       

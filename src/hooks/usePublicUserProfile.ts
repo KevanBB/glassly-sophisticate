@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { UserProfile } from './useUserProfile';
+import { UserProfile, PrivacySettings } from './useUserProfile';
 
 export function usePublicUserProfile(userId: string | undefined) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -42,18 +42,37 @@ export function usePublicUserProfile(userId: string | undefined) {
           .eq('user_id', userId)
           .maybeSingle();
         
+        // Create default privacy settings with proper types if none exist
+        const defaultPrivacySettings: PrivacySettings = {
+          user_id: userId,
+          display_name_visibility: 'public',
+          role_visibility: 'public',
+          interests_visibility: 'public',
+          experience_visibility: 'public', 
+          bio_visibility: 'public',
+          photos_visibility: 'public'
+        };
+        
+        // Ensure values are properly typed as union types
+        const typedPrivacySettings: PrivacySettings = privacyData 
+          ? {
+              ...defaultPrivacySettings,
+              ...privacyData,
+              // Force type casting to ensure correct union types
+              display_name_visibility: (privacyData.display_name_visibility as 'public' | 'friends' | 'private') || 'public',
+              role_visibility: (privacyData.role_visibility as 'public' | 'friends' | 'private') || 'public',
+              interests_visibility: (privacyData.interests_visibility as 'public' | 'friends' | 'private') || 'public',
+              experience_visibility: (privacyData.experience_visibility as 'public' | 'friends' | 'private') || 'public',
+              bio_visibility: (privacyData.bio_visibility as 'public' | 'friends' | 'private') || 'public',
+              photos_visibility: (privacyData.photos_visibility as 'public' | 'friends' | 'private') || 'public',
+              user_id: userId
+            }
+          : defaultPrivacySettings;
+        
         // Set up the profile with privacy settings
         setProfile({
           ...profileData,
-          privacy_settings: privacyData || {
-            user_id: userId,
-            display_name_visibility: 'public',
-            role_visibility: 'public',
-            interests_visibility: 'public',
-            experience_visibility: 'public',
-            bio_visibility: 'public',
-            photos_visibility: 'public'
-          }
+          privacy_settings: typedPrivacySettings
         });
       } catch (error) {
         console.error('Error:', error);

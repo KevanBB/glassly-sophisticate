@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MapPin, User, Heart } from 'lucide-react';
 
 interface LocationInfoProps {
+  profile?: any; // Added profile prop
   editing: boolean;
   formData: {
     location: string;
@@ -18,7 +18,7 @@ interface LocationInfoProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const LocationInfo = ({ editing, formData, handleChange }: LocationInfoProps) => {
+const LocationInfo = ({ profile, editing, formData, handleChange }: LocationInfoProps) => {
   return (
     <GlassPanel className="p-6 space-y-4">
       <h3 className="text-lg font-medium text-white">Demographics</h3>
