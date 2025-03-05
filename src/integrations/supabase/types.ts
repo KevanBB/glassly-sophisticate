@@ -83,27 +83,129 @@ export type Database = {
           },
         ]
       }
+      privacy_settings: {
+        Row: {
+          bio_visibility: string | null
+          disable_message_history: boolean | null
+          display_name_visibility: string | null
+          experience_visibility: string | null
+          hide_from_search: boolean | null
+          id: string
+          incognito_mode: boolean | null
+          interests_visibility: string | null
+          photos_visibility: string | null
+          prevent_screenshots: boolean | null
+          role_visibility: string | null
+          user_id: string
+        }
+        Insert: {
+          bio_visibility?: string | null
+          disable_message_history?: boolean | null
+          display_name_visibility?: string | null
+          experience_visibility?: string | null
+          hide_from_search?: boolean | null
+          id?: string
+          incognito_mode?: boolean | null
+          interests_visibility?: string | null
+          photos_visibility?: string | null
+          prevent_screenshots?: boolean | null
+          role_visibility?: string | null
+          user_id: string
+        }
+        Update: {
+          bio_visibility?: string | null
+          disable_message_history?: boolean | null
+          display_name_visibility?: string | null
+          experience_visibility?: string | null
+          hide_from_search?: boolean | null
+          id?: string
+          incognito_mode?: boolean | null
+          interests_visibility?: string | null
+          photos_visibility?: string | null
+          prevent_screenshots?: boolean | null
+          role_visibility?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
+          bio: string | null
+          display_name: string | null
+          experience_level: string | null
           first_name: string | null
           id: string
+          interests: string[] | null
           last_name: string | null
+          role: string | null
           updated_at: string | null
         }
         Insert: {
           avatar_url?: string | null
+          bio?: string | null
+          display_name?: string | null
+          experience_level?: string | null
           first_name?: string | null
           id: string
+          interests?: string[] | null
           last_name?: string | null
+          role?: string | null
           updated_at?: string | null
         }
         Update: {
           avatar_url?: string | null
+          bio?: string | null
+          display_name?: string | null
+          experience_level?: string | null
           first_name?: string | null
           id?: string
+          interests?: string[] | null
           last_name?: string | null
+          role?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_personas: {
+        Row: {
+          bio: string | null
+          created_at: string | null
+          display_name: string | null
+          experience_level: string | null
+          id: string
+          interests: string[] | null
+          is_default: boolean | null
+          name: string
+          role: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          experience_level?: string | null
+          id?: string
+          interests?: string[] | null
+          is_default?: boolean | null
+          name: string
+          role?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          bio?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          experience_level?: string | null
+          id?: string
+          interests?: string[] | null
+          is_default?: boolean | null
+          name?: string
+          role?: string | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
