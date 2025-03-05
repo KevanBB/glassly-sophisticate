@@ -25,9 +25,9 @@ interface User {
   last_name: string | null;
   avatar_url: string | null;
   last_active: string | null;
+  joined_at: string | null;
   is_active: boolean;
   role: string | null;
-  joined_at: string | null;
 }
 
 const MembersList = ({ searchQuery, filters }: MembersListProps) => {
