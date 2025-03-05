@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface PrivacySettings {
   id?: string;
-  user_id?: string;
+  user_id: string; // Changed from optional to required
   display_name_visibility?: 'public' | 'friends' | 'private';
   role_visibility?: 'public' | 'friends' | 'private';
   interests_visibility?: 'public' | 'friends' | 'private';
@@ -73,7 +73,7 @@ export function useUserProfile(user: any) {
           // If there are no privacy settings yet, create default ones
           let finalPrivacyData = privacyData;
           if (!privacyData) {
-            const defaultPrivacySettings: PrivacySettings = {
+            const defaultPrivacySettings = {
               user_id: user.id,
               display_name_visibility: 'public',
               role_visibility: 'friends',
@@ -101,15 +101,16 @@ export function useUserProfile(user: any) {
           }
           
           // Ensure privacy settings are properly typed
-          const typedPrivacySettings: PrivacySettings = finalPrivacyData ? {
+          const typedPrivacySettings = finalPrivacyData ? {
             ...finalPrivacyData,
+            user_id: finalPrivacyData.user_id, // Ensure user_id exists
             display_name_visibility: finalPrivacyData.display_name_visibility as 'public' | 'friends' | 'private',
             role_visibility: finalPrivacyData.role_visibility as 'public' | 'friends' | 'private',
             interests_visibility: finalPrivacyData.interests_visibility as 'public' | 'friends' | 'private',
             experience_visibility: finalPrivacyData.experience_visibility as 'public' | 'friends' | 'private',
             bio_visibility: finalPrivacyData.bio_visibility as 'public' | 'friends' | 'private',
             photos_visibility: finalPrivacyData.photos_visibility as 'public' | 'friends' | 'private',
-          } : undefined;
+          } as PrivacySettings : undefined;
           
           // Combine profile and privacy data
           setProfile({

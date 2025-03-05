@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { Edit2, Upload, Save, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -12,9 +11,10 @@ interface ProfileAvatarProps {
   editing: boolean;
   userId?: string;
   onAvatarUpdate?: (url: string) => void;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
-const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAvatarProps) => {
+const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate, size = 'xl' }: ProfileAvatarProps) => {
   const [isUploading, setIsUploading] = useState(false);
   const [showCropper, setShowCropper] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -34,12 +34,10 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
       const file = e.target.files[0];
       setSelectedFile(file);
       
-      // Create preview URL
       const objectUrl = URL.createObjectURL(file);
       setPreviewUrl(objectUrl);
       setShowCropper(true);
       
-      // Reset crop
       setCrop({
         unit: '%',
         width: 100,
@@ -59,12 +57,10 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
     try {
       setIsUploading(true);
       
-      // Create a canvas element to draw our cropped image
       const canvas = document.createElement('canvas');
       const scaleX = imgRef.current.naturalWidth / imgRef.current.width;
       const scaleY = imgRef.current.naturalHeight / imgRef.current.height;
       
-      // Set canvas dimensions to the cropped size
       canvas.width = crop.width * scaleX;
       canvas.height = crop.height * scaleY;
       
@@ -74,7 +70,6 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
         return;
       }
       
-      // Draw the cropped image
       ctx.drawImage(
         imgRef.current,
         crop.x * scaleX,
@@ -87,7 +82,6 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
         crop.height * scaleY
       );
       
-      // Convert canvas to blob
       const blob = await new Promise<Blob>((resolve) => {
         canvas.toBlob((blob) => {
           if (blob) resolve(blob);
@@ -95,13 +89,11 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
         }, 'image/jpeg', 0.95);
       });
       
-      // Create a new file from the blob
       const croppedFile = new File([blob], selectedFile.name, {
         type: 'image/jpeg',
         lastModified: Date.now(),
       });
       
-      // Upload to Supabase Storage
       const fileName = `avatar-${userId}-${Date.now()}`;
       const { data, error } = await supabase.storage
         .from('avatars')
@@ -112,12 +104,10 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
         
       if (error) throw error;
       
-      // Get the public URL
       const { data: publicUrlData } = supabase.storage
         .from('avatars')
         .getPublicUrl(fileName);
         
-      // Update the user's profile with the new avatar URL
       const { error: updateError } = await supabase
         .from('profiles')
         .update({ avatar_url: publicUrlData.publicUrl })
@@ -125,14 +115,12 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
         
       if (updateError) throw updateError;
       
-      // Update state and notify parent
       if (onAvatarUpdate) {
         onAvatarUpdate(publicUrlData.publicUrl);
       }
       
       toast.success("Avatar updated successfully!");
       
-      // Clean up
       setShowCropper(false);
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -157,6 +145,13 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
+  };
+
+  const sizeClass = {
+    sm: 'w-16 h-16',
+    md: 'w-20 h-20',
+    lg: 'w-24 h-24',
+    xl: 'w-28 h-28'
   };
 
   return (
@@ -212,7 +207,7 @@ const ProfileAvatar = ({ avatarUrl, editing, userId, onAvatarUpdate }: ProfileAv
             </div>
           </div>
         ) : (
-          <div className="w-28 h-28 rounded-full overflow-hidden border-4 border-crimson">
+          <div className={`${sizeClass[size]} rounded-full overflow-hidden border-4 border-crimson`}>
             <img 
               src={avatarUrl || "https://i.pravatar.cc/150?img=12"} 
               alt="Profile avatar" 
