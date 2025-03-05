@@ -167,7 +167,7 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ isOpen, onClose, onSe
         toast({
           title: "Contact exists",
           description: "This user is already in your contacts.",
-          variant: "info"
+          variant: "default"
         });
         
         const contact: Contact = {

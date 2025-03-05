@@ -26,7 +26,8 @@ export interface Contact {
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
-  last_message?: Message;
+  lastMessage?: Message;
+  unreadCount?: number;
 }
 
 // Conversation type

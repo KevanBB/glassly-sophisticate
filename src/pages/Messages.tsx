@@ -3,12 +3,12 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { Check, CheckCheck, Lock, Clock, Send, Mic, Image, Plus } from 'lucide-react';
+import { Lock, Plus } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
 import ChatList from '@/components/messaging/ChatList';
 import MessageThread from '@/components/messaging/MessageThread';
 import NewMessageModal from '@/components/messaging/NewMessageModal';
-import type { Message, Contact } from '@/types/messaging';
+import type { Contact, Message } from '@/types/messaging';
 
 const MessagesPage = () => {
   const { user } = useAuth();
@@ -24,7 +24,7 @@ const MessagesPage = () => {
     const fetchConversations = async () => {
       setIsLoading(true);
       try {
-        // Get all contacts where user is either the user or the contact
+        // Get all contacts
         const { data: contactsData, error: contactsError } = await supabase
           .from('contacts')
           .select('contact_id')
@@ -56,22 +56,52 @@ const MessagesPage = () => {
           avatar_url: profile.avatar_url,
         }));
 
-        // For each contact, get the last message
+        // For each contact, get the last message and unread count
         const contactsWithLastMessage = await Promise.all(contacts.map(async (contact) => {
           const { data: messagesData, error: messagesError } = await supabase
             .from('messages')
             .select('*')
-            .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-            .or(`sender_id.eq.${contact.id},receiver_id.eq.${contact.id}`)
+            .or(`and(sender_id.eq.${user.id},receiver_id.eq.${contact.id}),and(sender_id.eq.${contact.id},receiver_id.eq.${user.id})`)
             .order('created_at', { ascending: false })
             .limit(1);
 
           if (messagesError) throw messagesError;
+          
+          // Count unread messages
+          const { count: unreadCount, error: countError } = await supabase
+            .from('messages')
+            .select('*', { count: 'exact', head: true })
+            .eq('sender_id', contact.id)
+            .eq('receiver_id', user.id)
+            .is('read_at', null);
+            
+          if (countError) throw countError;
+
+          // Map the database message to our Message type if it exists
+          let lastMessage: Message | undefined;
+          if (messagesData && messagesData.length > 0) {
+            const dbMsg = messagesData[0];
+            lastMessage = {
+              id: dbMsg.id,
+              sender_id: dbMsg.sender_id,
+              receiver_id: dbMsg.receiver_id,
+              content: dbMsg.content,
+              type: (dbMsg.media_type as any) || 'text',
+              created_at: dbMsg.created_at || new Date().toISOString(),
+              read: dbMsg.read_at !== null,
+              self_destruct_time: dbMsg.is_self_destruct ? 
+                (typeof dbMsg.destruct_after === 'string' ? 
+                  parseInt(dbMsg.destruct_after.split(' ')[0], 10) : 
+                  null) : 
+                null,
+              media_url: dbMsg.media_url
+            };
+          }
 
           return {
             ...contact,
-            lastMessage: messagesData && messagesData.length > 0 ? messagesData[0] : null,
-            unreadCount: 0, // We'll implement this later
+            lastMessage,
+            unreadCount: unreadCount || 0,
           };
         }));
 
@@ -97,7 +127,7 @@ const MessagesPage = () => {
         event: 'INSERT', 
         schema: 'public', 
         table: 'messages',
-        filter: `sender_id=eq.${user.id},receiver_id=eq.${user.id}` 
+        filter: `or(sender_id=eq.${user.id},receiver_id=eq.${user.id})` 
       }, (payload) => {
         // Update conversations when a new message is received
         fetchConversations();

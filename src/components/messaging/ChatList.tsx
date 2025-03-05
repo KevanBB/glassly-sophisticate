@@ -68,7 +68,7 @@ const ChatList: React.FC<ChatListProps> = ({ conversations, activeChat, onSelect
                   )}
                 </div>
                 
-                {chat.unreadCount > 0 && (
+                {chat.unreadCount && chat.unreadCount > 0 && (
                   <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand flex items-center justify-center text-xs text-white">
                     {chat.unreadCount}
                   </div>

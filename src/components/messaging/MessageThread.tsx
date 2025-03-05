@@ -38,7 +38,24 @@ const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
         
         if (error) throw error;
         
-        setMessages(data || []);
+        // Map database messages to our Message type
+        const mappedMessages: Message[] = (data || []).map(dbMessage => ({
+          id: dbMessage.id,
+          sender_id: dbMessage.sender_id,
+          receiver_id: dbMessage.receiver_id,
+          content: dbMessage.content,
+          type: (dbMessage.media_type as MessageType) || 'text',
+          created_at: dbMessage.created_at || new Date().toISOString(),
+          read: dbMessage.read_at !== null,
+          self_destruct_time: dbMessage.is_self_destruct ? 
+            (typeof dbMessage.destruct_after === 'string' ? 
+              parseInt(dbMessage.destruct_after.split(' ')[0], 10) : 
+              null) : 
+            null,
+          media_url: dbMessage.media_url
+        }));
+        
+        setMessages(mappedMessages);
       } catch (error) {
         console.error('Error fetching messages:', error);
         toast({
@@ -63,7 +80,23 @@ const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
         filter: `or(and(sender_id=eq.${user.id},receiver_id=eq.${contact.id}),and(sender_id=eq.${contact.id},receiver_id=eq.${user.id}))` 
       }, (payload) => {
         // Add new message to the list
-        const newMsg = payload.new as Message;
+        const dbMsg = payload.new as any;
+        const newMsg: Message = {
+          id: dbMsg.id,
+          sender_id: dbMsg.sender_id,
+          receiver_id: dbMsg.receiver_id,
+          content: dbMsg.content,
+          type: (dbMsg.media_type as MessageType) || 'text',
+          created_at: dbMsg.created_at || new Date().toISOString(),
+          read: dbMsg.read_at !== null,
+          self_destruct_time: dbMsg.is_self_destruct ? 
+            (typeof dbMsg.destruct_after === 'string' ? 
+              parseInt(dbMsg.destruct_after.split(' ')[0], 10) : 
+              null) : 
+            null,
+          media_url: dbMsg.media_url
+        };
+        
         setMessages(prev => [...prev, newMsg]);
       })
       .subscribe();
