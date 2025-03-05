@@ -4,11 +4,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import GlassPanel from '@/components/ui/GlassPanel';
-import { User, Mail, FileText } from 'lucide-react';
+import { User, Mail, FileText, Shield } from 'lucide-react';
 
 interface BasicProfileInfoProps {
   profile: any;
   editing: boolean;
+  isOwnProfile?: boolean;
   formData: {
     displayName: string;
     bio: string;
@@ -16,7 +17,12 @@ interface BasicProfileInfoProps {
   handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
 }
 
-const BasicProfileInfo = ({ profile, editing, formData, handleChange }: BasicProfileInfoProps) => {
+const BasicProfileInfo = ({ profile, editing, formData, handleChange, isOwnProfile = true }: BasicProfileInfoProps) => {
+  // Check if bio is private
+  const canViewBio = isOwnProfile || 
+    (profile?.privacy_settings?.bio_visibility === 'public') || 
+    (profile?.privacy_settings?.bio_visibility === 'friends' /* && isFriend logic would go here */);
+
   return (
     <GlassPanel className="p-6 space-y-4">
       <h3 className="text-lg font-medium text-white">Basic Information</h3>
@@ -45,15 +51,27 @@ const BasicProfileInfo = ({ profile, editing, formData, handleChange }: BasicPro
             </div>
           </div>
           
-          <div className="flex items-start space-x-3 pt-2">
-            <div className="bg-primary/20 p-2 rounded-full mt-1">
-              <FileText size={20} className="text-primary" />
+          {canViewBio ? (
+            <div className="flex items-start space-x-3 pt-2">
+              <div className="bg-primary/20 p-2 rounded-full mt-1">
+                <FileText size={20} className="text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-white/60 mb-1">Bio</p>
+                <p className="text-white">{formData.bio || "No bio yet"}</p>
+              </div>
             </div>
-            <div className="flex-1">
-              <p className="text-sm text-white/60 mb-1">Bio</p>
-              <p className="text-white">{formData.bio || "No bio yet"}</p>
+          ) : (
+            <div className="flex items-start space-x-3 pt-2">
+              <div className="bg-primary/20 p-2 rounded-full mt-1">
+                <Shield size={20} className="text-primary" />
+              </div>
+              <div className="flex-1">
+                <p className="text-sm text-white/60 mb-1">Bio</p>
+                <p className="text-white/60 italic">This user's bio is private</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       ) : (
         <div className="space-y-4">

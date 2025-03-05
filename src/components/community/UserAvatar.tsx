@@ -2,6 +2,7 @@
 import React from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
+import { Link } from 'react-router-dom';
 
 interface UserAvatarProps {
   user: {
@@ -15,13 +16,15 @@ interface UserAvatarProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showActiveIndicator?: boolean;
   className?: string;
+  linkToProfile?: boolean;
 }
 
 const UserAvatar = ({ 
   user, 
   size = 'md', 
   showActiveIndicator = false,
-  className 
+  className,
+  linkToProfile = true
 }: UserAvatarProps) => {
   // Determine avatar size based on prop
   const sizeClass = {
@@ -57,7 +60,7 @@ const UserAvatar = ({
     }
   };
 
-  return (
+  const avatarContent = (
     <div className="relative inline-block">
       <Avatar className={cn(sizeClass[size], className)}>
         <AvatarImage src={user.avatar_url || ''} alt="User avatar" />
@@ -75,6 +78,16 @@ const UserAvatar = ({
       )}
     </div>
   );
+
+  if (linkToProfile && user.id) {
+    return (
+      <Link to={`/profile/${user.id}`}>
+        {avatarContent}
+      </Link>
+    );
+  }
+
+  return avatarContent;
 };
 
 export default UserAvatar;

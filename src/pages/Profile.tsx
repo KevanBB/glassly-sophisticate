@@ -21,13 +21,6 @@ const ProfilePage = () => {
   const profile = useUserProfile(user);
   const [currentTab, setCurrentTab] = useState("about");
   const [isEditing, setIsEditing] = useState(false);
-  const [isOwnProfile, setIsOwnProfile] = useState(true);
-
-  useEffect(() => {
-    if (user && profile) {
-      setIsOwnProfile(user.id === profile.id);
-    }
-  }, [user, profile]);
 
   const toggleEditMode = () => {
     setIsEditing(!isEditing);
@@ -47,6 +40,7 @@ const ProfilePage = () => {
         profile={profile} 
         user={user} 
         isEditing={isEditing} 
+        isOwnProfile={true}
         onToggleEdit={toggleEditMode} 
       />
       
@@ -84,7 +78,8 @@ const ProfilePage = () => {
               <AboutTab 
                 profile={profile} 
                 user={user} 
-                isEditing={isEditing} 
+                isEditing={isEditing}
+                isOwnProfile={true} 
                 onSave={() => setIsEditing(false)} 
               />
             </TabsContent>
@@ -98,13 +93,11 @@ const ProfilePage = () => {
             </TabsContent>
             
             <TabsContent value="badges">
-              <BadgesDisplay userId={user?.id} isOwnProfile={isOwnProfile} />
+              <BadgesDisplay userId={user?.id} isOwnProfile={true} />
               
-              {isOwnProfile && (
-                <div className="mt-6">
-                  <PrivateNotes userId={user?.id} />
-                </div>
-              )}
+              <div className="mt-6">
+                <PrivateNotes userId={user?.id} />
+              </div>
             </TabsContent>
             
             <TabsContent value="privacy">

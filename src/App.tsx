@@ -12,6 +12,7 @@ import Messages from "./pages/Messages";
 import ProfilePage from "./pages/Profile";
 import CommunityPage from "./pages/Community";
 import MembersPage from "./pages/Members";
+import UserProfilePage from "./pages/UserProfile";
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -44,6 +45,11 @@ const App = () => (
               <Route path="/profile" element={
                 <ProtectedRoute>
                   <ProfilePage />
+                </ProtectedRoute>
+              } />
+              <Route path="/profile/:userId" element={
+                <ProtectedRoute>
+                  <UserProfilePage />
                 </ProtectedRoute>
               } />
               <Route path="/community" element={

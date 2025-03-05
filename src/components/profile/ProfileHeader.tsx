@@ -1,25 +1,36 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { Edit2, Mail, UserPlus, Calendar } from 'lucide-react';
+import { Edit2, Mail, UserPlus, Calendar, UserCheck, UserMinus } from 'lucide-react';
 import ProfileAvatar from './ProfileAvatar';
+import { Link } from 'react-router-dom';
+import { toast } from 'sonner';
 
 interface ProfileHeaderProps {
   profile: any;
   user: any;
   isEditing?: boolean;
+  isOwnProfile?: boolean;
   onToggleEdit?: () => void;
 }
 
-const ProfileHeader = ({ profile, user, isEditing = false, onToggleEdit }: ProfileHeaderProps) => {
-  const isOwnProfile = user && profile && user.id === profile.id;
-  
+const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, onToggleEdit }: ProfileHeaderProps) => {
   const formatJoinDate = (timestamp: string) => {
     if (!timestamp) return "Unknown";
     const date = new Date(timestamp);
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
   
+  const handleConnect = () => {
+    toast.success("Connection request sent");
+    // Add actual connection logic here
+  };
+  
+  const handleMessage = () => {
+    toast.success("Message started");
+    // Add logic to navigate to messages page with this user
+  };
+
   return (
     <div className="relative w-full max-w-4xl z-10 mb-6">
       {/* Banner Image */}
@@ -66,7 +77,7 @@ const ProfileHeader = ({ profile, user, isEditing = false, onToggleEdit }: Profi
         <div className="absolute -top-16 left-4 sm:left-8">
           <ProfileAvatar 
             avatarUrl={profile?.avatar_url}
-            editing={isEditing} 
+            editing={isEditing && isOwnProfile} 
             userId={profile?.id}
             size="lg"
           />
@@ -88,13 +99,22 @@ const ProfileHeader = ({ profile, user, isEditing = false, onToggleEdit }: Profi
               </div>
             </div>
             
-            {!isOwnProfile && (
+            {!isOwnProfile && user && (
               <div className="flex gap-2">
-                <Button size="sm" className="bg-brand hover:bg-brand/90 text-white">
+                <Button 
+                  size="sm" 
+                  className="bg-brand hover:bg-brand/90 text-white"
+                  onClick={handleConnect}
+                >
                   <UserPlus size={16} className="mr-1.5" />
                   Connect
                 </Button>
-                <Button size="sm" variant="outline" className="border-white/20 text-white">
+                <Button 
+                  size="sm" 
+                  variant="outline" 
+                  className="border-white/20 text-white"
+                  onClick={handleMessage}
+                >
                   <Mail size={16} className="mr-1.5" />
                   Message
                 </Button>
