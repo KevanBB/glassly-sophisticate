@@ -136,7 +136,7 @@ export type Database = {
           experience_level: string | null
           first_name: string | null
           id: string
-          interests: string[] | null
+          kinks_fetishes: string[] | null
           last_name: string | null
           role: string | null
           updated_at: string | null
@@ -148,7 +148,7 @@ export type Database = {
           experience_level?: string | null
           first_name?: string | null
           id: string
-          interests?: string[] | null
+          kinks_fetishes?: string[] | null
           last_name?: string | null
           role?: string | null
           updated_at?: string | null
@@ -160,10 +160,31 @@ export type Database = {
           experience_level?: string | null
           first_name?: string | null
           id?: string
-          interests?: string[] | null
+          kinks_fetishes?: string[] | null
           last_name?: string | null
           role?: string | null
           updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_kinks: {
+        Row: {
+          created_at: string | null
+          id: string
+          kink_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          kink_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          kink_name?: string
+          user_id?: string
         }
         Relationships: []
       }
