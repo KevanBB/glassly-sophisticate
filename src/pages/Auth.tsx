@@ -28,7 +28,7 @@ const Auth = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="min-h-screen relative flex items-center justify-center px-4 py-12 overflow-hidden"
+      className="min-h-screen relative flex flex-col md:flex-row items-center justify-center px-4 py-12 overflow-hidden"
     >
       {/* Background gradient and effects */}
       <div className="absolute inset-0 bg-gradient-to-br from-dark-200 to-dark -z-10">
@@ -40,23 +40,23 @@ const Auth = () => {
       {/* Subtle noise texture overlay */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGZpbHRlciBpZD0ibm9pc2UiPgogICAgPGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNzUiIHN0aXRjaFRpbGVzPSJzdGl0Y2giIG51bU9jdGF2ZXM9IjIiIHNlZWQ9IjAiIHJlc3VsdD0idHVyYnVsZW5jZSIgLz4KICAgIDxmZUNvbG9yTWF0cml4IHR5cGU9InNhdHVyYXRlIiB2YWx1ZXM9IjAiIC8+CiAgPC9maWx0ZXI+CiAgPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbHRlcj0idXJsKCNub2lzZSkiIG9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-30 mix-blend-soft-light pointer-events-none -z-10"></div>
       
-      {/* Brand logo moved to top right with link and slogan */}
-      <div className="absolute top-8 right-8 z-50">
+      {/* Brand logo moved to top left on desktop, stacked on top on mobile */}
+      <div className="absolute top-8 left-8 md:static md:mr-auto md:mb-0 z-50">
         <Link to="/">
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.5 }}
-            className="flex flex-col items-center"
+            className="flex flex-col items-center md:items-start mb-8 md:mb-0"
           >
-            {/* Placeholder for logo - increased size by 1.75x */}
+            {/* Placeholder for logo - with 1.75x size */}
             <div className="flex items-center space-x-3">
               <div className="w-[17.5px] h-[17.5px] bg-brand rounded-lg flex items-center justify-center shadow-lg">
                 <span className="text-white font-bold text-[1.75rem]">S</span>
               </div>
               <h1 className="text-[1.75rem] font-semibold text-white">SubSpace</h1>
             </div>
-            {/* Added slogan */}
+            {/* Slogan */}
             <p className="text-xs text-white/60 mt-1 font-light tracking-wider">Engineered for Dominance</p>
           </motion.div>
         </Link>
@@ -70,7 +70,7 @@ const Auth = () => {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="w-full max-w-md"
+          className="w-full max-w-md mt-16 md:mt-0"
         >
           {isLoginPage && (
             <AuthCard 
