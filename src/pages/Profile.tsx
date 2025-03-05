@@ -3,19 +3,26 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import ProfileHeader from '@/components/profile/ProfileHeader';
-import ProfileContent from '@/components/profile/ProfileContent';
+import AboutTab from '@/components/profile/AboutTab';
+import ActivityTab from '@/components/profile/ActivityTab';
+import WallTab from '@/components/profile/WallTab';
 import PrivacySettings from '@/components/profile/PrivacySettings';
 import SecuritySettings from '@/components/profile/SecuritySettings';
 import BottomNavigation from '@/components/dashboard/BottomNavigation';
 import { useUserProfile } from '@/hooks/useUserProfile';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GlassPanel from '@/components/ui/GlassPanel';
-import { Shield, Lock, User } from 'lucide-react';
+import { Shield, Lock, User, Activity, MessageSquare, Settings } from 'lucide-react';
 
 const ProfilePage = () => {
   const { user } = useAuth();
   const profile = useUserProfile(user);
-  const [currentTab, setCurrentTab] = useState("general");
+  const [currentTab, setCurrentTab] = useState("about");
+  const [isEditing, setIsEditing] = useState(false);
+
+  const toggleEditMode = () => {
+    setIsEditing(!isEditing);
+  };
 
   return (
     <motion.div 
@@ -27,15 +34,28 @@ const ProfilePage = () => {
       {/* Background effect */}
       <div className="fixed inset-0 bg-gradient-to-b from-dark-200 to-dark z-0" />
       
-      <ProfileHeader profile={profile} user={user} />
+      <ProfileHeader 
+        profile={profile} 
+        user={user} 
+        isEditing={isEditing} 
+        onToggleEdit={toggleEditMode} 
+      />
       
       <div className="w-full max-w-4xl z-10 mb-20">
         <GlassPanel className="p-6 mb-6">
           <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-            <TabsList className="grid grid-cols-3 mb-6">
-              <TabsTrigger value="general" className="flex items-center gap-2">
+            <TabsList className="grid grid-cols-5 mb-6">
+              <TabsTrigger value="about" className="flex items-center gap-2">
                 <User size={16} />
-                <span className="hidden sm:inline">Profile</span>
+                <span className="hidden sm:inline">About</span>
+              </TabsTrigger>
+              <TabsTrigger value="activity" className="flex items-center gap-2">
+                <Activity size={16} />
+                <span className="hidden sm:inline">Activity</span>
+              </TabsTrigger>
+              <TabsTrigger value="wall" className="flex items-center gap-2">
+                <MessageSquare size={16} />
+                <span className="hidden sm:inline">Wall</span>
               </TabsTrigger>
               <TabsTrigger value="privacy" className="flex items-center gap-2">
                 <Lock size={16} />
@@ -47,8 +67,21 @@ const ProfilePage = () => {
               </TabsTrigger>
             </TabsList>
             
-            <TabsContent value="general">
-              <ProfileContent profile={profile} user={user} />
+            <TabsContent value="about">
+              <AboutTab 
+                profile={profile} 
+                user={user} 
+                isEditing={isEditing} 
+                onSave={() => setIsEditing(false)} 
+              />
+            </TabsContent>
+            
+            <TabsContent value="activity">
+              <ActivityTab profile={profile} user={user} />
+            </TabsContent>
+            
+            <TabsContent value="wall">
+              <WallTab profile={profile} user={user} isEditing={isEditing} />
             </TabsContent>
             
             <TabsContent value="privacy">
