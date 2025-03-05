@@ -52,7 +52,7 @@ const MembersList = ({ searchQuery, filters }: MembersListProps) => {
           setUsers(prevUsers => 
             prevUsers.map(user => 
               user.id === payload.new.id 
-                ? { ...user, ...payload.new as any } 
+                ? { ...user, ...(payload.new as any) } 
                 : user
             )
           );
@@ -117,8 +117,15 @@ const MembersList = ({ searchQuery, filters }: MembersListProps) => {
       
       // Process the data to determine active status
       const processedUsers = data.map(user => ({
-        ...user,
-        is_active: user.is_active || false,
+        id: user.id,
+        display_name: user.display_name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        avatar_url: user.avatar_url,
+        role: user.role,
+        last_active: user.last_active || user.updated_at,
+        joined_at: user.joined_at || user.updated_at,
+        is_active: user.is_active || false
       }));
       
       if (pageNumber === 1) {

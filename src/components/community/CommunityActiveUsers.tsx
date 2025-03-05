@@ -43,7 +43,7 @@ const CommunityActiveUsers = ({ searchQuery, filters }: CommunityActiveUsersProp
           setUsers(prevUsers => 
             prevUsers.map(user => 
               user.id === payload.new.id 
-                ? { ...user, ...payload.new as any } 
+                ? { ...user, ...(payload.new as any) } 
                 : user
             )
           );
@@ -104,9 +104,13 @@ const CommunityActiveUsers = ({ searchQuery, filters }: CommunityActiveUsersProp
       
       // Process the data to determine active status
       const processedUsers = data.map(user => ({
-        ...user,
-        is_active: user.is_active || false,
-        // Add computed properties if needed
+        id: user.id,
+        display_name: user.display_name,
+        first_name: user.first_name,
+        last_name: user.last_name,
+        avatar_url: user.avatar_url,
+        last_active: user.last_active || user.updated_at,
+        is_active: user.is_active || false
       }));
       
       setUsers(processedUsers);
