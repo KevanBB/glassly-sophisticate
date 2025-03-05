@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 export interface PrivacySettings {
   id?: string;
-  user_id: string; // Changed from optional to required
+  user_id: string; // Required
   display_name_visibility?: 'public' | 'friends' | 'private';
   role_visibility?: 'public' | 'friends' | 'private';
   interests_visibility?: 'public' | 'friends' | 'private';
@@ -73,7 +73,7 @@ export function useUserProfile(user: any) {
           // If there are no privacy settings yet, create default ones
           let finalPrivacyData = privacyData;
           if (!privacyData) {
-            const defaultPrivacySettings = {
+            const defaultPrivacySettings: PrivacySettings = {
               user_id: user.id,
               display_name_visibility: 'public',
               role_visibility: 'friends',
