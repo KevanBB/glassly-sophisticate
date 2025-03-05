@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Edit2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import GlassPanel from '@/components/ui/GlassPanel';
@@ -26,7 +26,22 @@ const ProfileContent = ({ profile, user }: ProfileContentProps) => {
     role: profile?.role || "switch",
     kinksFetishes: profile?.kinks_fetishes || [],
     experienceLevel: profile?.experience_level || "curious",
+    avatarUrl: profile?.avatar_url || "",
   });
+  
+  // Update form data when profile changes
+  useEffect(() => {
+    if (profile) {
+      setFormData({
+        displayName: profile.display_name || "",
+        bio: profile.bio || "",
+        role: profile.role || "switch",
+        kinksFetishes: profile.kinks_fetishes || [],
+        experienceLevel: profile.experience_level || "curious",
+        avatarUrl: profile.avatar_url || "",
+      });
+    }
+  }, [profile]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -53,6 +68,13 @@ const ProfileContent = ({ profile, user }: ProfileContentProps) => {
     setFormData({
       ...formData,
       kinksFetishes: updatedKinks
+    });
+  };
+  
+  const handleAvatarUpdate = (url: string) => {
+    setFormData({
+      ...formData,
+      avatarUrl: url
     });
   };
   
@@ -89,7 +111,7 @@ const ProfileContent = ({ profile, user }: ProfileContentProps) => {
           variant="ghost" 
           size="sm" 
           onClick={() => editing ? handleSave() : setEditing(true)}
-          className="text-white/80 hover:text-white"
+          className="text-white/80 hover:text-white bg-gunmetal/30 hover:bg-gunmetal/50"
         >
           {editing ? <Save size={16} className="mr-2" /> : <Edit2 size={16} className="mr-2" />}
           {editing ? "Save" : "Edit"}
@@ -99,8 +121,10 @@ const ProfileContent = ({ profile, user }: ProfileContentProps) => {
       <div className="flex flex-col space-y-6">
         {/* Profile Image */}
         <ProfileAvatar 
-          avatarUrl={profile?.avatar_url || "https://i.pravatar.cc/150?img=12"} 
-          editing={editing} 
+          avatarUrl={formData.avatarUrl || "https://i.pravatar.cc/150?img=12"} 
+          editing={editing}
+          userId={user?.id}
+          onAvatarUpdate={handleAvatarUpdate}
         />
         
         {/* Basic Information */}

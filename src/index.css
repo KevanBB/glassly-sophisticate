@@ -14,7 +14,8 @@
     --popover: 240 10% 3.9%;
     --popover-foreground: 0 0% 98%;
     
-    --primary: 225 30% 62%;
+    /* Updated primary to match crimson */
+    --primary: 348 89% 47%;
     --primary-foreground: 0 0% 100%;
     
     --secondary: 240 3.7% 15.9%;
@@ -23,7 +24,8 @@
     --muted: 240 3.7% 15.9%;
     --muted-foreground: 240 5% 74.9%;
     
-    --accent: 225 30% 62%;
+    /* Updated accent to match gunmetal */
+    --accent: 0 0% 50%;
     --accent-foreground: 0 0% 98%;
     
     --destructive: 0 62.8% 40.6%;
@@ -31,7 +33,7 @@
     
     --border: 240 3.7% 20.9%;
     --input: 240 3.7% 20.9%;
-    --ring: 225 30% 62%;
+    --ring: 348 89% 47%;
     
     --radius: 0.75rem;
   }
@@ -39,7 +41,7 @@
 
 @layer base {
   * {
-    @apply border-border selection:bg-brand/20 selection:text-white;
+    @apply border-border selection:bg-crimson/20 selection:text-white;
   }
   
   body {
@@ -100,7 +102,7 @@
   }
   
   .glass-input {
-    @apply bg-white/5 backdrop-blur-md border border-white/10 focus:border-white/20 transition-all duration-300;
+    @apply bg-white/5 backdrop-blur-md border border-white/10 focus:border-crimson/30 transition-all duration-300;
   }
   
   /* Text styling */

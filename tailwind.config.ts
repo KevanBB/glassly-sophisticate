@@ -75,6 +75,17 @@ export default {
 					DEFAULT: "#7C90C1",
 					dark: "#5A6FA3",
 				},
+				// New theme colors
+				"crimson": {
+					DEFAULT: "#DC143C",
+					light: "#F0506E",
+					dark: "#B01030",
+				},
+				"gunmetal": {
+					DEFAULT: "#808080",
+					light: "#A0A0A0",
+					dark: "#606060",
+				},
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
