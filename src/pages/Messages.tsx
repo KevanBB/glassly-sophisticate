@@ -8,6 +8,7 @@ import { useToast } from "@/components/ui/use-toast";
 import ChatList from '@/components/messaging/ChatList';
 import MessageThread from '@/components/messaging/MessageThread';
 import NewMessageModal from '@/components/messaging/NewMessageModal';
+import BottomNavigation from '@/components/dashboard/BottomNavigation';
 import type { Contact, Message } from '@/types/messaging';
 
 const MessagesPage = () => {
@@ -211,6 +212,9 @@ const MessagesPage = () => {
           onSelectContact={handleStartNewChat}
         />
       )}
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
     </motion.div>
   );
 };
