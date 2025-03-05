@@ -6,7 +6,6 @@ import GlassPanel from '@/components/ui/GlassPanel';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import ProfileAvatar from './ProfileAvatar';
 import BasicProfileInfo from './BasicProfileInfo';
 import RolePreferences from './RolePreferences';
 import KinksFetishesList from './KinksFetishesList';
@@ -108,25 +107,17 @@ const ProfileContent = ({ profile, user }: ProfileContentProps) => {
         <h2 className="text-xl font-medium text-white">Profile Information</h2>
         
         <Button 
-          variant="ghost" 
+          variant="secondary" 
           size="sm" 
           onClick={() => editing ? handleSave() : setEditing(true)}
-          className="text-white/80 hover:text-white bg-gunmetal/30 hover:bg-gunmetal/50"
+          className="text-white/80 hover:text-white"
         >
           {editing ? <Save size={16} className="mr-2" /> : <Edit2 size={16} className="mr-2" />}
-          {editing ? "Save" : "Edit"}
+          {editing ? "Save Changes" : "Edit Profile"}
         </Button>
       </div>
       
       <div className="flex flex-col space-y-6">
-        {/* Profile Image */}
-        <ProfileAvatar 
-          avatarUrl={formData.avatarUrl || "https://i.pravatar.cc/150?img=12"} 
-          editing={editing}
-          userId={user?.id}
-          onAvatarUpdate={handleAvatarUpdate}
-        />
-        
         {/* Basic Information */}
         <BasicProfileInfo 
           profile={profile} 
@@ -136,8 +127,15 @@ const ProfileContent = ({ profile, user }: ProfileContentProps) => {
         />
         
         {/* Role Information */}
-        <GlassPanel className="p-4 space-y-4">
-          <h3 className="text-lg font-medium text-white">Role & Preferences</h3>
+        <GlassPanel className="p-6 space-y-4">
+          <div className="flex justify-between items-center">
+            <h3 className="text-lg font-medium text-white">Role & Preferences</h3>
+            {!editing && formData.role && (
+              <div className="px-3 py-1 rounded-full bg-primary/20 text-white text-sm">
+                {formData.role.charAt(0).toUpperCase() + formData.role.slice(1)}
+              </div>
+            )}
+          </div>
           <Separator className="bg-white/10" />
           
           <RolePreferences 

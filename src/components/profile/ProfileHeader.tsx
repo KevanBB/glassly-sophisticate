@@ -92,7 +92,7 @@ const ProfileHeader = ({ profile, user }: ProfileHeaderProps) => {
       <div className="relative">
         {/* Banner Image */}
         <div 
-          className="relative w-full h-40 md:h-56 rounded-t-2xl overflow-hidden"
+          className="relative w-full h-48 md:h-64 rounded-t-2xl overflow-hidden"
           onMouseEnter={() => setIsHovering(true)}
           onMouseLeave={() => setIsHovering(false)}
         >
@@ -137,7 +137,7 @@ const ProfileHeader = ({ profile, user }: ProfileHeaderProps) => {
         </div>
 
         {/* Avatar overlapping the banner */}
-        <div className="absolute -bottom-12 left-1/2 transform -translate-x-1/2">
+        <div className="absolute -bottom-16 left-8 md:left-12 transform">
           <ProfileAvatar 
             avatarUrl={profile?.avatar_url || ""} 
             editing={true}
@@ -148,7 +148,7 @@ const ProfileHeader = ({ profile, user }: ProfileHeaderProps) => {
       </div>
       
       {/* Profile info panel */}
-      <GlassPanel className="p-4 pt-16 mt-4 flex flex-col items-center">
+      <GlassPanel className="p-6 pt-20 mt-4 flex flex-col items-start">
         <Button 
           variant="ghost" 
           size="icon" 
@@ -158,25 +158,30 @@ const ProfileHeader = ({ profile, user }: ProfileHeaderProps) => {
           <ChevronLeft size={24} />
         </Button>
         
-        <h1 className="text-xl font-semibold text-white mb-1">
-          {profile?.display_name || 'Profile Management'}
-        </h1>
-        
-        {/* User Stats */}
-        <div className="flex items-center space-x-4 mt-2 text-sm text-white/80">
-          <div className="flex flex-col items-center">
-            <span className="font-medium">{profile?.role || 'Switch'}</span>
-            <span className="text-xs text-white/60">Role</span>
+        <div className="flex flex-col md:flex-row w-full justify-between items-start md:items-center pl-24 md:pl-28">
+          <div>
+            <h1 className="text-2xl font-semibold text-white mb-1">
+              {profile?.display_name || 'Anonymous User'}
+            </h1>
+            <p className="text-sm text-white/70">{profile?.bio ? profile.bio.substring(0, 80) + (profile.bio.length > 80 ? '...' : '') : 'No bio yet'}</p>
           </div>
-          <div className="w-px h-8 bg-white/20"></div>
-          <div className="flex flex-col items-center">
-            <span className="font-medium">{profile?.experience_level || 'Curious'}</span>
-            <span className="text-xs text-white/60">Experience</span>
-          </div>
-          <div className="w-px h-8 bg-white/20"></div>
-          <div className="flex flex-col items-center">
-            <span className="font-medium">{profile?.kinks_fetishes?.length || 0}</span>
-            <span className="text-xs text-white/60">Kinks</span>
+          
+          {/* User Stats */}
+          <div className="flex items-center space-x-6 mt-3 md:mt-0 text-sm">
+            <div className="flex flex-col items-center">
+              <span className="font-medium text-white">{profile?.role || 'Switch'}</span>
+              <span className="text-xs text-white/60">Role</span>
+            </div>
+            <div className="w-px h-8 bg-white/20"></div>
+            <div className="flex flex-col items-center">
+              <span className="font-medium text-white">{profile?.experience_level || 'Curious'}</span>
+              <span className="text-xs text-white/60">Experience</span>
+            </div>
+            <div className="w-px h-8 bg-white/20"></div>
+            <div className="flex flex-col items-center">
+              <span className="font-medium text-white">{profile?.kinks_fetishes?.length || 0}</span>
+              <span className="text-xs text-white/60">Kinks</span>
+            </div>
           </div>
         </div>
       </GlassPanel>
