@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Home, Bell, User, MessageCircle, Search, DollarSign } from 'lucide-react';
@@ -11,6 +10,8 @@ import QuickActionsCard from '@/components/dashboard/QuickActionsCard';
 import TributeCard from '@/components/dashboard/TributeCard';
 import FloatingActionButton from '@/components/ui/FloatingActionButton';
 import { toast } from 'sonner';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 // Mock data - would come from API in production
 const mockNotifications = [
@@ -44,11 +45,37 @@ const recentTributes = [
 ];
 
 const Dashboard = () => {
+  const { user, signOut } = useAuth();
   const [time, setTime] = useState(new Date());
   const [backgroundClass, setBackgroundClass] = useState('from-dark-200 to-dark');
   const [showTributeForm, setShowTributeForm] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
   
-  // Update time and background based on time of day
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (user) {
+        try {
+          const { data, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+          
+          if (error) {
+            console.error('Error fetching profile:', error);
+            return;
+          }
+          
+          setProfile(data);
+        } catch (error) {
+          console.error('Error:', error);
+        }
+      }
+    };
+    
+    fetchProfile();
+  }, [user]);
+  
   useEffect(() => {
     const interval = setInterval(() => {
       const newTime = new Date();
@@ -67,7 +94,6 @@ const Dashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // FAB actions
   const handleFabClick = () => {
     setShowTributeForm(true);
     toast('Quick tribute activated', {
@@ -92,6 +118,11 @@ const Dashboard = () => {
     },
   ];
 
+  const handleSignOut = async () => {
+    await signOut();
+    toast.success('You have been logged out');
+  };
+
   return (
     <motion.div 
       initial={{ opacity: 0 }}
@@ -99,17 +130,13 @@ const Dashboard = () => {
       exit={{ opacity: 0 }}
       className="min-h-screen relative flex flex-col items-center px-4 py-6 overflow-x-hidden"
     >
-      {/* Dynamic background gradient */}
       <div className={`absolute inset-0 bg-gradient-to-br ${backgroundClass} -z-10`}>
-        {/* Animated gradient orbs for background effect */}
         <div className="absolute top-1/4 left-1/3 w-[500px] h-[500px] rounded-full bg-brand/5 blur-3xl opacity-30 animate-float"></div>
         <div className="absolute bottom-1/4 right-1/3 w-[300px] h-[300px] rounded-full bg-brand-light/5 blur-3xl opacity-20 animate-float animate-delay-500"></div>
       </div>
       
-      {/* Subtle noise texture overlay */}
       <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDMwMCAzMDAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CiAgPGZpbHRlciBpZD0ibm9pc2UiPgogICAgPGZlVHVyYnVsZW5jZSB0eXBlPSJmcmFjdGFsTm9pc2UiIGJhc2VGcmVxdWVuY3k9IjAuNzUiIHN0aXRjaFRpbGVzPSJzdGl0Y2giIG51bU9jdGF2ZXM9IjIiIHNlZWQ9IjAiIHJlc3VsdD0idHVyYnVsZW5jZSIgLz4KICAgIDxmZUNvbG9yTWF0cml4IHR5cGU9InNhdHVyYXRlIiB2YWx1ZXM9IjAiIC8+CiAgPC9maWx0ZXI+CiAgPHJlY3Qgd2lkdGg9IjMwMCIgaGVpZ2h0PSIzMDAiIGZpbHRlcj0idXJsKCNub2lzZSkiIG9wYWNpdHk9IjAuMDUiLz4KPC9zdmc+')] opacity-30 mix-blend-soft-light pointer-events-none -z-10"></div>
       
-      {/* Main dashboard content */}
       <header className="w-full max-w-4xl flex justify-between items-center mb-6">
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
@@ -117,7 +144,9 @@ const Dashboard = () => {
           transition={{ delay: 0.2 }}
           className="flex flex-col"
         >
-          <h1 className="text-2xl font-semibold text-white">Dashboard</h1>
+          <h1 className="text-2xl font-semibold text-white">
+            {profile ? `Welcome, ${profile.first_name}` : 'Dashboard'}
+          </h1>
           <p className="text-sm text-white/60">
             {time.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
           </p>
@@ -127,15 +156,15 @@ const Dashboard = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand"
+          className="w-10 h-10 rounded-full overflow-hidden border-2 border-brand cursor-pointer"
+          onClick={handleSignOut}
+          title="Sign out"
         >
           <img src="https://i.pravatar.cc/150?img=12" alt="User avatar" className="w-full h-full object-cover" />
         </motion.div>
       </header>
       
-      {/* Dashboard grid layout */}
       <main className="w-full max-w-4xl grid grid-cols-1 md:grid-cols-2 gap-4 mb-20">
-        {/* Quick Actions */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -145,7 +174,6 @@ const Dashboard = () => {
           <QuickActionsCard actions={quickActions} />
         </motion.div>
         
-        {/* Notifications */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -154,7 +182,6 @@ const Dashboard = () => {
           <NotificationCard notifications={mockNotifications} />
         </motion.div>
         
-        {/* Activity */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -163,7 +190,6 @@ const Dashboard = () => {
           <ActivityCard activities={mockActivity} />
         </motion.div>
         
-        {/* Tributes */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -172,7 +198,6 @@ const Dashboard = () => {
           <TributeCard recentTributes={recentTributes} />
         </motion.div>
         
-        {/* Matches */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -183,7 +208,6 @@ const Dashboard = () => {
         </motion.div>
       </main>
       
-      {/* Floating Action Button */}
       <FloatingActionButton 
         icon={<DollarSign size={24} />}
         onClick={handleFabClick}
@@ -191,7 +215,6 @@ const Dashboard = () => {
         subActions={fabSubActions}
       />
       
-      {/* Bottom Navigation */}
       <BottomNavigation />
     </motion.div>
   );

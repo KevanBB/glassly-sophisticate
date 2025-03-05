@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -6,9 +5,11 @@ import { toast } from 'sonner';
 import { Eye, EyeOff, Lock, Mail } from 'lucide-react';
 import BiometricButton from './BiometricButton';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 const LoginForm = () => {
   const navigate = useNavigate();
+  const { signIn } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -25,12 +26,20 @@ const LoginForm = () => {
     
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        throw error;
+      }
+      
       toast.success('Login successful');
       navigate('/dashboard');
-    }, 1500);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to login');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleBiometricLogin = () => {
@@ -38,7 +47,8 @@ const LoginForm = () => {
       description: 'This would trigger Face ID/Touch ID on a real device',
     });
     
-    // Simulate successful biometric login
+    // Simulated biometric login for demo purposes
+    // In a real app, this would use the device's biometric API
     setTimeout(() => {
       toast.success('Biometric authentication successful');
       navigate('/dashboard');

@@ -5,9 +5,11 @@ import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Calendar, Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/context/AuthContext';
 
 const RegisterForm = () => {
   const navigate = useNavigate();
+  const { signUp } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -56,12 +58,32 @@ const RegisterForm = () => {
     
     setIsLoading(true);
     
-    // Simulate API call
-    setTimeout(() => {
-      setIsLoading(false);
-      toast.success('Registration successful! Welcome to SubSpace');
+    try {
+      // Split the name into first and last name
+      const nameParts = name.trim().split(/\s+/);
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+      
+      const { error } = await signUp(email, password, {
+        first_name: firstName,
+        last_name: lastName,
+        birthdate: birthdate
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      toast.success('Registration successful! Please check your email to confirm your account.');
+      
+      // In development, we might navigate directly since email confirmation might be disabled
+      // In production, we'd typically show a "check your email" screen instead
       navigate('/dashboard');
-    }, 1500);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to register');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
