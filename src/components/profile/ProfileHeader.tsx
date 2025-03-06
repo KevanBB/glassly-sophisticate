@@ -1,8 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Edit2, Mail, UserPlus, Calendar, UserCheck, UserMinus, UserX, Loader2 } from 'lucide-react';
 import ProfileAvatar from './ProfileAvatar';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { useConnections } from '@/hooks/useConnections';
@@ -24,6 +25,7 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
     requester_id?: string;
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const formatJoinDate = (timestamp: string) => {
     if (!timestamp) return "Unknown";
@@ -91,8 +93,21 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
   };
   
   const handleMessage = () => {
-    toast.success("Message started");
-    // Add logic to navigate to messages page with this user
+    if (!profile || !currentUser) return;
+    
+    toast.success(`Starting conversation with ${profile.first_name || 'user'}`);
+    // Navigate to messages page with this user's profile
+    navigate('/messages', { 
+      state: { 
+        startConversation: true, 
+        contact: {
+          id: profile.id,
+          first_name: profile.first_name,
+          last_name: profile.last_name,
+          avatar_url: profile.avatar_url
+        }
+      } 
+    });
   };
 
   const renderConnectionButton = () => {
