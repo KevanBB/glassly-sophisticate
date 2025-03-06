@@ -39,6 +39,9 @@ export interface UserProfile {
   looking_for?: string[];
   privacy_settings?: PrivacySettings;
   stripe_account_id?: string;
+  is_creator?: boolean;
+  creator_username?: string;
+  creator_onboarding_complete?: boolean;
 }
 
 export function useUserProfile(user: any) {

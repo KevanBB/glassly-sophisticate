@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Button } from '@/components/ui/button';
 import { CreditCard, DollarSign, Send, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import DashboardCard from './DashboardCard';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PaymentProcessor } from '@/components/payments/PaymentProcessor';
-import { Button } from '@/components/ui/button';
 
-// Define preset amounts for quick selection
 const PRESET_AMOUNTS = [5, 10, 20, 50, 100];
 
 interface TributeCardProps {
@@ -34,8 +33,6 @@ const TributeCard = ({
     const value = e.target.value;
     setRecipient(value);
     
-    // In a real app, this would come from your database
-    // For now, we'll use sample IDs
     const recipientMap: Record<string, string> = {
       'DomMaster97': '5f8d0a1e-d8a6-4d3c-9d7f-12a4b5c6d7e8',
       'SubLover23': '6a9b8c7d-6e5f-4d3c-b2a1-0f9e8d7c6b5a',
@@ -46,14 +43,12 @@ const TributeCard = ({
   };
 
   const handlePaymentSuccess = () => {
-    // Reset form
     setTributeAmount('');
     setTributeMessage('');
     setRecipient('');
     setRecipientId('');
     setShowTributeForm(false);
     
-    // Add to recent tributes (would normally come from the server)
     const newTribute = {
       id: Date.now(),
       amount: Number(tributeAmount),
@@ -62,7 +57,6 @@ const TributeCard = ({
       avatar: 'https://i.pravatar.cc/150?img=' + Math.floor(Math.random() * 70)
     };
     
-    // In a real app, you'd update this via the server
     recentTributes.unshift(newTribute);
   };
 
@@ -90,7 +84,6 @@ const TributeCard = ({
               </button>
             </div>
             
-            {/* Recipient selector */}
             <div className="space-y-2">
               <label className="text-sm text-white/70">Recipient</label>
               <select 
@@ -105,7 +98,6 @@ const TributeCard = ({
               </select>
             </div>
             
-            {/* Amount selector */}
             <div className="space-y-2">
               <label className="text-sm text-white/70">Amount</label>
               <div className="relative">
@@ -122,7 +114,6 @@ const TributeCard = ({
                 />
               </div>
               
-              {/* Quick amount buttons */}
               <div className="flex flex-wrap gap-2 mt-2">
                 {PRESET_AMOUNTS.map(amount => (
                   <button
@@ -141,7 +132,6 @@ const TributeCard = ({
               </div>
             </div>
             
-            {/* Message input */}
             <div className="space-y-2">
               <label className="text-sm text-white/70">Message (Optional)</label>
               <textarea
@@ -152,7 +142,6 @@ const TributeCard = ({
               />
             </div>
             
-            {/* Payment processor */}
             {recipient && recipientId && tributeAmount ? (
               <PaymentProcessor
                 creatorId={recipientId}
@@ -178,7 +167,6 @@ const TributeCard = ({
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            {/* New tribute button */}
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
@@ -189,7 +177,6 @@ const TributeCard = ({
               Send a Tribute
             </motion.button>
             
-            {/* Recent tributes list */}
             <div className="space-y-3">
               {recentTributes.length === 0 ? (
                 <p className="text-center text-white/50 py-2">No recent tributes</p>

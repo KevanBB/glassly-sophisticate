@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useStripeConnect, StripeAccount } from '@/hooks/useStripeConnect';
 import { useAuth } from '@/context/AuthContext';
