@@ -34,9 +34,9 @@ const MediaGallery = ({ viewType, onViewChange, creatorId, username }: MediaGall
             .from('profiles')
             .select('id')
             .eq('creator_username', username)
-            .single();
+            .maybeSingle();
             
-          if (userError) {
+          if (userError || !userData) {
             throw new Error('Creator not found');
           }
           
@@ -91,15 +91,27 @@ const MediaGallery = ({ viewType, onViewChange, creatorId, username }: MediaGall
               thumbnail_url: media.thumbnail_url
             }));
             
-            // Ensure we're explicitly converting the visibility string to PostVisibility type
-            const postVisibility = post.visibility as PostVisibility;
+            // Validate that the visibility is one of the allowed values
+            let postVisibility: PostVisibility = 'free';
             
-            // Make sure post conforms to the Post type
+            if (post.visibility === 'free' || post.visibility === 'subscriber' || post.visibility === 'ppv') {
+              postVisibility = post.visibility as PostVisibility;
+            }
+            
+            // Create a properly typed Post object
             const typedPost: Post = {
-              ...post,
+              id: post.id,
+              creator_id: post.creator_id,
+              title: post.title || undefined,
+              caption: post.caption || '',
               media: formattedMedia,
               visibility: postVisibility,
-              tags: post.tags || []
+              price: post.price || undefined,
+              tags: post.tags || [],
+              created_at: post.created_at,
+              updated_at: post.updated_at,
+              likes_count: post.likes_count,
+              comments_count: post.comments_count
             };
             
             return typedPost;

@@ -7,10 +7,9 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { 
   PlusCircle, Upload, X, MoveUp, MoveDown, 
-  Image as ImageIcon, Video, FileText, Edit2, 
-  Lock, Eye, Tag, Loader2, LayoutGrid
+  Image as ImageIcon, Video, FileText, Loader2, LayoutGrid, Eye, Lock, Tag 
 } from 'lucide-react';
-import { MediaType, PostVisibility, Media } from '../profile/types';
+import { MediaType, PostVisibility } from '../profile/types';
 import GlassPanel from '@/components/ui/GlassPanel';
 
 interface PostEditorProps {
@@ -140,7 +139,7 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
           title: title || null,
           caption,
           visibility,
-          price: visibility === 'ppv' ? price : 0,
+          price: visibility === 'ppv' ? price : null,
           tags: tags.length > 0 ? tags : [],
         })
         .select()
@@ -149,11 +148,36 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
       if (postError) throw postError;
       
       // 2. Upload each media file
-      const uploadPromises = mediaFiles.map(async (file) => {
+      const uploadPromises = mediaFiles.map(async (file, index) => {
         const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
         const filePath = `${user.id}/${postData.id}/${fileName}`;
         
-        // Create a custom upload handler to track progress
+        // Update progress before starting upload (show as started)
+        setUploadProgress(prev => ({
+          ...prev,
+          [fileName]: 1
+        }));
+        
+        // Create a storage bucket if it doesn't exist (first-time setup)
+        // This would normally be done via SQL migration
+        try {
+          const { data: bucketExists } = await supabase
+            .storage
+            .getBucket('creator_media');
+            
+          if (!bucketExists) {
+            await supabase
+              .storage
+              .createBucket('creator_media', {
+                public: true
+              });
+          }
+        } catch (error) {
+          console.log('Bucket already exists or creating bucket failed', error);
+          // Continue anyway, it might already exist
+        }
+        
+        // Upload file
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('creator_media')
           .upload(filePath, file, {
@@ -162,6 +186,12 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
           });
         
         if (uploadError) throw uploadError;
+        
+        // Update progress after upload
+        setUploadProgress(prev => ({
+          ...prev,
+          [fileName]: 70
+        }));
         
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
@@ -176,10 +206,10 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
           thumbnailUrl = '/placeholder.svg';
         }
         
-        // Track upload progress manually (simulation)
+        // Track upload progress (update to reflect post_media creation started)
         setUploadProgress(prev => ({
           ...prev,
-          [fileName]: 100
+          [fileName]: 90
         }));
         
         // 3. Create media record
@@ -198,6 +228,12 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
           .single();
           
         if (mediaError) throw mediaError;
+        
+        // Update progress to complete
+        setUploadProgress(prev => ({
+          ...prev,
+          [fileName]: 100
+        }));
         
         return mediaData;
       });
