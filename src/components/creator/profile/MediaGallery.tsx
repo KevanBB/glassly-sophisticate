@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ViewType, Post } from './types';
+import { ViewType, Post, Media, MediaType } from './types';
 import { Button } from '@/components/ui/button';
 import { Grid2X2, List, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -75,9 +75,26 @@ const MediaGallery = ({ viewType, onViewChange, creatorId, username }: MediaGall
               };
             }
             
+            // Convert database media to our Media type
+            const formattedMedia: Media[] = mediaData.map(media => ({
+              id: media.id,
+              url: media.media_url,
+              type: media.media_type as MediaType,
+              thumbnail: media.thumbnail_url || undefined,
+              caption: media.caption || undefined,
+              file_size: media.file_size,
+              position: media.position,
+              created_at: media.created_at,
+              post_id: media.post_id,
+              media_url: media.media_url,
+              media_type: media.media_type,
+              thumbnail_url: media.thumbnail_url
+            }));
+            
             return {
               ...post,
-              media: mediaData
+              media: formattedMedia,
+              visibility: post.visibility as PostVisibility
             };
           })
         );

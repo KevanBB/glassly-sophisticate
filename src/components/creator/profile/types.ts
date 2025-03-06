@@ -13,6 +13,10 @@ export interface Media {
   file_size: number;
   position: number;
   created_at: string;
+  post_id?: string;
+  media_url?: string;
+  media_type?: string;
+  thumbnail_url?: string;
 }
 
 export interface Post {
