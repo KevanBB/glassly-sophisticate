@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import DashboardCard from './DashboardCard';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { PaymentProcessor } from '@/components/payments/PaymentProcessor';
 
 // Define preset amounts for quick selection
 const PRESET_AMOUNTS = [5, 10, 20, 50, 100];
@@ -26,32 +27,43 @@ const TributeCard = ({
   const [tributeAmount, setTributeAmount] = useState<number | string>('');
   const [tributeMessage, setTributeMessage] = useState('');
   const [recipient, setRecipient] = useState('');
+  const [recipientId, setRecipientId] = useState('');
   const [isProcessing, setIsProcessing] = useState(false);
 
-  const handleSendTribute = () => {
-    if (!tributeAmount || Number(tributeAmount) <= 0) {
-      toast.error('Please enter a valid amount');
-      return;
-    }
+  const handleRecipientChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value;
+    setRecipient(value);
+    
+    // In a real app, this would come from your database
+    // For now, we'll use sample IDs
+    const recipientMap: Record<string, string> = {
+      'DomMaster97': '5f8d0a1e-d8a6-4d3c-9d7f-12a4b5c6d7e8',
+      'SubLover23': '6a9b8c7d-6e5f-4d3c-b2a1-0f9e8d7c6b5a',
+      'KinkExplorer': '7c6b5a4d-3e2f-1a9b-8c7d-6e5f4d3c2b1a'
+    };
+    
+    setRecipientId(recipientMap[value] || '');
+  };
 
-    if (!recipient) {
-      toast.error('Please select a recipient');
-      return;
-    }
-
-    setIsProcessing(true);
-
-    // Simulate payment processing
-    setTimeout(() => {
-      setIsProcessing(false);
-      toast.success(`Tribute of $${tributeAmount} sent to ${recipient}!`);
-      
-      // Reset form
-      setTributeAmount('');
-      setTributeMessage('');
-      setRecipient('');
-      setShowTributeForm(false);
-    }, 1500);
+  const handlePaymentSuccess = () => {
+    // Reset form
+    setTributeAmount('');
+    setTributeMessage('');
+    setRecipient('');
+    setRecipientId('');
+    setShowTributeForm(false);
+    
+    // Add to recent tributes (would normally come from the server)
+    const newTribute = {
+      id: Date.now(),
+      amount: Number(tributeAmount),
+      recipient: recipient,
+      date: new Date().toLocaleDateString(),
+      avatar: 'https://i.pravatar.cc/150?img=' + Math.floor(Math.random() * 70)
+    };
+    
+    // In a real app, you'd update this via the server
+    recentTributes.unshift(newTribute);
   };
 
   return (
@@ -83,7 +95,7 @@ const TributeCard = ({
               <label className="text-sm text-white/70">Recipient</label>
               <select 
                 value={recipient}
-                onChange={(e) => setRecipient(e.target.value)}
+                onChange={handleRecipientChange}
                 className="w-full bg-white/5 border border-white/10 rounded-lg p-2 text-white"
               >
                 <option value="">Select recipient</option>
@@ -140,34 +152,24 @@ const TributeCard = ({
               />
             </div>
             
-            {/* Send button */}
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={handleSendTribute}
-              disabled={isProcessing}
-              className={cn(
-                "w-full py-2 rounded-lg font-medium flex items-center justify-center",
-                "bg-gradient-to-r from-brand-dark to-brand text-white",
-                "transition-all duration-300",
-                "disabled:opacity-70 disabled:cursor-not-allowed"
-              )}
-            >
-              {isProcessing ? (
-                <>
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Processing...
-                </>
-              ) : (
-                <>
-                  <Send size={16} className="mr-2" />
-                  Send Tribute
-                </>
-              )}
-            </motion.button>
+            {/* Payment processor */}
+            {recipient && recipientId && tributeAmount ? (
+              <PaymentProcessor
+                creatorId={recipientId}
+                amount={Number(tributeAmount)}
+                tributeType="tribute"
+                onSuccess={handlePaymentSuccess}
+                onError={(error) => toast.error(error)}
+              />
+            ) : (
+              <Button
+                disabled={true}
+                className="w-full opacity-50"
+              >
+                <Send size={16} className="mr-2" />
+                Select recipient and amount
+              </Button>
+            )}
           </motion.div>
         ) : (
           <motion.div
