@@ -60,6 +60,14 @@ export function useStripeConnect() {
     return callStripeFunction('create_account', { country });
   };
 
+  const updateStripeAccount = async (accountId: string, data: any) => {
+    return callStripeFunction('update_account', { accountId, ...data });
+  };
+
+  const createManagedAccount = async (country: string = 'US') => {
+    return callStripeFunction('create_managed_account', { country });
+  };
+
   const getOnboardingLink = async (returnUrl: string) => {
     const result = await callStripeFunction('create_onboarding_link', { returnUrl });
     return result?.url;
@@ -92,6 +100,8 @@ export function useStripeConnect() {
     loading,
     error,
     createStripeAccount,
+    updateStripeAccount,
+    createManagedAccount,
     getOnboardingLink,
     getOAuthLink,
     getAccountStatus,

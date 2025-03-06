@@ -11,6 +11,7 @@ import StatsPanel from '@/components/creator/dashboard/StatsPanel';
 import StripeStatusPanel from '@/components/creator/dashboard/StripeStatusPanel';
 import ContentQuickActions from '@/components/creator/dashboard/ContentQuickActions';
 import LoadingSpinner from '@/components/creator/dashboard/LoadingSpinner';
+import StripeAccountManagement from '@/components/payments/StripeAccountManagement';
 
 const CreatorDashboard = () => {
   const { user } = useAuth();
@@ -68,6 +69,14 @@ const CreatorDashboard = () => {
             <StatsPanel />
             <StripeStatusPanel />
             <ContentQuickActions />
+          </div>
+          
+          <div className="mt-8">
+            <h2 className="text-xl font-semibold text-white mb-4">Advanced Settings</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <StripeAccountManagement />
+              {/* Additional admin panels can be added here */}
+            </div>
           </div>
         </div>
       </motion.div>

@@ -122,6 +122,82 @@ serve(async (req) => {
         result = { accountId: account.id, account };
         break;
 
+      case 'create_managed_account':
+        // Only creators can create Stripe accounts
+        if (!profile.is_creator) {
+          return new Response(JSON.stringify({ error: 'Only creators can create Stripe accounts' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Create a new Managed Stripe Connect account
+        const managedAccount = await stripe.accounts.create({
+          type: 'express',
+          country: data.country || 'US',
+          email: user.email,
+          capabilities: {
+            card_payments: { requested: true },
+            transfers: { requested: true },
+          },
+          business_type: 'individual',
+          controller: {
+            stripe_dashboard: {
+              type: "none",
+            },
+            fees: {
+              payer: "application"
+            },
+            losses: {
+              payments: "application"
+            },
+            requirement_collection: "application",
+          },
+          business_profile: {
+            url: `https://example.com/creator/${profile.creator_username}`,
+          },
+        });
+
+        // Store the account ID in the user's profile
+        await supabaseClient
+          .from('profiles')
+          .update({ stripe_account_id: managedAccount.id })
+          .eq('id', user.id);
+
+        result = { accountId: managedAccount.id, account: managedAccount };
+        break;
+
+      case 'update_account':
+        // Only creators can update Stripe accounts
+        if (!profile.is_creator) {
+          return new Response(JSON.stringify({ error: 'Only creators can update Stripe accounts' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Check if the account ID matches the user's account
+        const accountId = data.accountId;
+        
+        if (!accountId || (profile.stripe_account_id && profile.stripe_account_id !== accountId)) {
+          return new Response(JSON.stringify({ error: 'Invalid account ID' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Update the Stripe account
+        const updatedAccount = await stripe.accounts.update(
+          accountId,
+          {
+            business_type: data.business_type || 'individual',
+            // You can add more update fields here from the data object
+          }
+        );
+
+        result = { accountId: updatedAccount.id, account: updatedAccount };
+        break;
+
       case 'create_onboarding_link':
         // Check if the user has a Stripe account
         if (!profile.stripe_account_id) {
