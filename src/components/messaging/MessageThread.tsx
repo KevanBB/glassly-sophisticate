@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -101,9 +102,35 @@ const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
         event: 'INSERT', 
         schema: 'public', 
         table: 'messages',
-        filter: `or(and(sender_id=eq.${user.id},receiver_id=eq.${contact.id}),and(sender_id=eq.${contact.id},receiver_id=eq.${user.id}))` 
+        filter: `sender_id=eq.${user.id},receiver_id=eq.${contact.id}` 
       }, (payload) => {
-        // Add new message to the list
+        // Add new message from current user to contact
+        const dbMsg = payload.new as any;
+        const newMsg: Message = {
+          id: dbMsg.id,
+          sender_id: dbMsg.sender_id,
+          receiver_id: dbMsg.receiver_id,
+          content: dbMsg.content,
+          type: (dbMsg.media_type as MessageType) || 'text',
+          created_at: dbMsg.created_at || new Date().toISOString(),
+          read: dbMsg.read_at !== null,
+          self_destruct_time: dbMsg.is_self_destruct ? 
+            (typeof dbMsg.destruct_after === 'string' ? 
+              parseInt(dbMsg.destruct_after.split(' ')[0], 10) : 
+              null) : 
+            null,
+          media_url: dbMsg.media_url
+        };
+        
+        setMessages(prev => [...prev, newMsg]);
+      })
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'messages',
+        filter: `sender_id=eq.${contact.id},receiver_id=eq.${user.id}` 
+      }, (payload) => {
+        // Add new message from contact to current user
         const dbMsg = payload.new as any;
         const newMsg: Message = {
           id: dbMsg.id,

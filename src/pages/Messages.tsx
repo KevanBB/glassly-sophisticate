@@ -26,6 +26,7 @@ const MessagesPage = () => {
     if (state?.startConversation && state?.contact) {
       console.log('Starting conversation with:', state.contact);
       setActiveChat(state.contact);
+      // Clear the state to avoid restarting the conversation on page reload
       window.history.replaceState({}, document.title);
     }
   }, [location]);
@@ -126,20 +127,45 @@ const MessagesPage = () => {
 
     fetchConversations();
 
+    // Set up realtime subscription for new messages
     const messagesSubscription = supabase
-      .channel('messages-channel')
+      .channel('new-messages')
       .on('postgres_changes', { 
         event: 'INSERT', 
         schema: 'public', 
         table: 'messages',
-        filter: `or(sender_id=eq.${user.id},receiver_id=eq.${user.id})` 
-      }, (payload) => {
+        filter: `receiver_id=eq.${user.id}` 
+      }, () => {
+        // Refresh conversation list when receiving a new message
+        fetchConversations();
+      })
+      .on('postgres_changes', { 
+        event: 'INSERT', 
+        schema: 'public', 
+        table: 'messages',
+        filter: `sender_id=eq.${user.id}` 
+      }, () => {
+        // Refresh conversation list when sending a new message
+        fetchConversations();
+      })
+      .subscribe();
+
+    // Set up a subscription for contact changes
+    const contactsSubscription = supabase
+      .channel('contacts-changes')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'contacts',
+        filter: `user_id=eq.${user.id}`
+      }, () => {
         fetchConversations();
       })
       .subscribe();
 
     return () => {
       supabase.removeChannel(messagesSubscription);
+      supabase.removeChannel(contactsSubscription);
     };
   }, [user, toast]);
 

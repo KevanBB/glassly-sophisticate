@@ -25,10 +25,12 @@ const MessageInput: React.FC<MessageInputProps> = ({
   const { toast } = useToast();
   const [newMessage, setNewMessage] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const handleSendMessage = async () => {
-    if (!newMessage.trim() || !user || !contact) return;
+    if (!newMessage.trim() || !user || !contact || isSending) return;
     
+    setIsSending(true);
     try {
       const messageData = {
         sender_id: user.id,
@@ -46,6 +48,26 @@ const MessageInput: React.FC<MessageInputProps> = ({
         
       if (error) throw error;
       
+      // Ensure the contact is in the user's contacts list
+      const { data: existingContact, error: contactError } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('contact_id', contact.id)
+        .maybeSingle();
+        
+      if (contactError) throw contactError;
+      
+      // If the contact is not in the contacts list, add them
+      if (!existingContact) {
+        await supabase
+          .from('contacts')
+          .insert({
+            user_id: user.id,
+            contact_id: contact.id
+          });
+      }
+      
       // Clear input after sending
       setNewMessage('');
       setIsSelfDestruct(false);
@@ -56,6 +78,8 @@ const MessageInput: React.FC<MessageInputProps> = ({
         description: "There was a problem sending your message.",
         variant: "destructive"
       });
+    } finally {
+      setIsSending(false);
     }
   };
   
@@ -106,6 +130,26 @@ const MessageInput: React.FC<MessageInputProps> = ({
         .insert(messageData);
         
       if (error) throw error;
+      
+      // Ensure the contact is in the user's contacts list
+      const { data: existingContact, error: contactError } = await supabase
+        .from('contacts')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('contact_id', contact.id)
+        .maybeSingle();
+        
+      if (contactError) throw contactError;
+      
+      // If the contact is not in the contacts list, add them
+      if (!existingContact) {
+        await supabase
+          .from('contacts')
+          .insert({
+            user_id: user.id,
+            contact_id: contact.id
+          });
+      }
       
       toast({
         title: "File uploaded",
@@ -164,10 +208,18 @@ const MessageInput: React.FC<MessageInputProps> = ({
         
         <button 
           onClick={handleSendMessage}
-          disabled={!newMessage.trim()}
-          className={`p-3 rounded-full ${newMessage.trim() ? 'bg-brand hover:bg-brand-light' : 'bg-white/10 text-white/30'} text-white transition-colors`}
+          disabled={!newMessage.trim() || isSending}
+          className={`p-3 rounded-full ${
+            !newMessage.trim() || isSending 
+              ? 'bg-white/10 text-white/30' 
+              : 'bg-brand hover:bg-brand-light text-white'
+          } transition-colors`}
         >
-          <Send size={20} />
+          {isSending ? (
+            <div className="h-5 w-5 rounded-full border-2 border-white border-t-transparent animate-spin"></div>
+          ) : (
+            <Send size={20} />
+          )}
         </button>
       </div>
     </div>
