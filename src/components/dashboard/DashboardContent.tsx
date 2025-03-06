@@ -8,7 +8,6 @@ import QuickActionsCard from './QuickActionsCard';
 import TributeCard from './TributeCard';
 
 interface DashboardContentProps {
-  notifications: any[];
   activities: any[];
   matches: any[];
   quickActions: any[];
@@ -16,7 +15,6 @@ interface DashboardContentProps {
 }
 
 const DashboardContent = ({
-  notifications,
   activities,
   matches,
   quickActions,
@@ -38,7 +36,7 @@ const DashboardContent = ({
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
       >
-        <NotificationCard notifications={notifications} />
+        <NotificationCard />
       </motion.div>
       
       <motion.div

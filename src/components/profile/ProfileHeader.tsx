@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Edit2, Mail, UserPlus, Calendar, UserCheck, UserMinus, UserX, Loader2 } from 'lucide-react';
@@ -32,14 +31,19 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
     return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   };
   
-  // Load connection status when profile changes
   useEffect(() => {
     const loadConnectionStatus = async () => {
       if (!currentUser || !profile || isOwnProfile) return;
       
       try {
         const connection = await getConnectionStatus(profile.id);
-        setConnectionStatus(connection);
+        if (connection) {
+          setConnectionStatus({
+            id: connection.id,
+            status: connection.status as 'pending' | 'approved' | 'denied',
+            requester_id: connection.requester_id
+          });
+        }
       } catch (error) {
         console.error('Error loading connection status:', error);
       }
@@ -91,9 +95,7 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
     // Add logic to navigate to messages page with this user
   };
 
-  // Determine what connection button to show
   const renderConnectionButton = () => {
-    // If the status is loading or it's the user's own profile, don't show connect button
     if (isOwnProfile || !currentUser) return null;
     
     if (isLoading) {
@@ -105,7 +107,6 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
       );
     }
     
-    // No connection exists yet
     if (!connectionStatus) {
       return (
         <Button 
@@ -119,10 +120,8 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
       );
     }
     
-    // Connection is pending - show different UI for requester vs recipient
     if (connectionStatus.status === 'pending') {
       if (connectionStatus.requester_id === currentUser.id) {
-        // Current user sent the request
         return (
           <Button 
             size="sm" 
@@ -135,7 +134,6 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
           </Button>
         );
       } else {
-        // Current user received the request (unlikely to be seen here, as this would be handled in notifications)
         return (
           <Button 
             size="sm" 
@@ -150,7 +148,6 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
       }
     }
     
-    // Connection is approved - show connected state
     if (connectionStatus.status === 'approved') {
       return (
         <Button 
@@ -165,7 +162,6 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
       );
     }
     
-    // If denied, show connect button again
     return (
       <Button 
         size="sm" 
@@ -180,7 +176,6 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
 
   return (
     <div className="relative w-full max-w-4xl z-10 mb-6">
-      {/* Banner Image */}
       <div className="h-48 md:h-64 rounded-xl overflow-hidden bg-gradient-to-r from-primary/30 to-purple-500/30 relative">
         {profile?.banner_url ? (
           <img
@@ -192,7 +187,6 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
           <div className="absolute inset-0 bg-gradient-to-r from-primary/30 to-purple-500/30" />
         )}
         
-        {/* Banner Edit Button */}
         {isOwnProfile && (
           <div className="absolute bottom-3 right-3">
             {isEditing ? (
@@ -218,9 +212,7 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
         )}
       </div>
       
-      {/* Profile Info Section */}
       <div className="flex flex-col sm:flex-row px-4 pt-0 pb-4 relative">
-        {/* Avatar */}
         <div className="absolute -top-16 left-4 sm:left-8">
           <ProfileAvatar 
             avatarUrl={profile?.avatar_url}
@@ -230,7 +222,6 @@ const ProfileHeader = ({ profile, user, isEditing = false, isOwnProfile = true, 
           />
         </div>
         
-        {/* Profile Details */}
         <div className="mt-16 sm:mt-4 sm:ml-32 md:ml-36 flex-1">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>

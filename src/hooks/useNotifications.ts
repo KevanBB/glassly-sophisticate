@@ -31,20 +31,11 @@ export function useNotifications(userId: string | undefined) {
     }
 
     try {
-      // Fetch notifications with joined sender profiles for connection requests
+      // Fetch notifications
       const { data, error } = await supabase
         .from('notifications')
-        .select(`
-          *,
-          sender_info:profiles!inner(
-            display_name,
-            first_name,
-            last_name,
-            avatar_url
-          )
-        `)
+        .select('*')
         .eq('user_id', userId)
-        .eq('type', 'connection_request')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -52,21 +43,36 @@ export function useNotifications(userId: string | undefined) {
       // Process the notifications to include sender info
       const processedNotifications = await Promise.all((data || []).map(async (notification) => {
         // For connection requests, get the requester's profile
-        if (notification.type === 'connection_request' && notification.content.requester_id) {
-          const { data: profileData, error: profileError } = await supabase
-            .from('profiles')
-            .select('display_name, first_name, last_name, avatar_url')
-            .eq('id', notification.content.requester_id)
-            .single();
+        if (notification.type === 'connection_request' && notification.content) {
+          const contentObj = typeof notification.content === 'string' 
+            ? JSON.parse(notification.content) 
+            : notification.content;
+          
+          if (contentObj.requester_id) {
+            const { data: profileData, error: profileError } = await supabase
+              .from('profiles')
+              .select('display_name, first_name, last_name, avatar_url')
+              .eq('id', contentObj.requester_id)
+              .single();
 
-          if (!profileError && profileData) {
-            return {
-              ...notification,
-              sender_info: profileData
-            };
+            if (!profileError && profileData) {
+              return {
+                ...notification,
+                content: contentObj,
+                sender_info: profileData
+              } as Notification;
+            }
           }
         }
-        return notification;
+        // Ensure content is always an object
+        const contentObj = typeof notification.content === 'string' 
+          ? JSON.parse(notification.content) 
+          : notification.content;
+          
+        return {
+          ...notification,
+          content: contentObj
+        } as Notification;
       }));
 
       setNotifications(processedNotifications);

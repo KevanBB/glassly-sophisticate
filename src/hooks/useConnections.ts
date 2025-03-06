@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -40,15 +39,7 @@ export function useConnections(userId: string | undefined) {
         // Fetch approved connections where current user is requester
         const { data: sentConnections, error: sentError } = await supabase
           .from('connections')
-          .select(`
-            *,
-            profile:profiles!recipient_id(
-              display_name,
-              first_name,
-              last_name,
-              avatar_url
-            )
-          `)
+          .select('*')
           .eq('requester_id', userId)
           .eq('status', 'approved');
 
@@ -57,46 +48,74 @@ export function useConnections(userId: string | undefined) {
         // Fetch approved connections where current user is recipient
         const { data: receivedConnections, error: receivedError } = await supabase
           .from('connections')
-          .select(`
-            *,
-            profile:profiles!requester_id(
-              display_name,
-              first_name,
-              last_name,
-              avatar_url
-            )
-          `)
+          .select('*')
           .eq('recipient_id', userId)
           .eq('status', 'approved');
 
         if (receivedError) throw receivedError;
 
+        // Process connections to add profile data
+        const processedSentConnections = await Promise.all((sentConnections || []).map(async (connection) => {
+          // Get the other user's profile (recipient)
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('display_name, first_name, last_name, avatar_url')
+            .eq('id', connection.recipient_id)
+            .single();
+            
+          return {
+            ...connection,
+            profile: profileData || undefined
+          } as ConnectionWithProfile;
+        }));
+        
+        const processedReceivedConnections = await Promise.all((receivedConnections || []).map(async (connection) => {
+          // Get the other user's profile (requester)
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('display_name, first_name, last_name, avatar_url')
+            .eq('id', connection.requester_id)
+            .single();
+            
+          return {
+            ...connection,
+            profile: profileData || undefined
+          } as ConnectionWithProfile;
+        }));
+
         // Combine both types of connections
         const combinedConnections = [
-          ...(sentConnections || []),
-          ...(receivedConnections || [])
+          ...processedSentConnections,
+          ...processedReceivedConnections
         ];
 
         setConnections(combinedConnections);
 
         // Fetch pending requests received by current user
-        const { data: requests, error: requestsError } = await supabase
+        const { data: pendingRequests, error: requestsError } = await supabase
           .from('connections')
-          .select(`
-            *,
-            profile:profiles!requester_id(
-              display_name,
-              first_name,
-              last_name,
-              avatar_url
-            )
-          `)
+          .select('*')
           .eq('recipient_id', userId)
           .eq('status', 'pending');
 
         if (requestsError) throw requestsError;
 
-        setPendingRequests(requests || []);
+        // Process pending requests to add requester profile data
+        const processedPendingRequests = await Promise.all((pendingRequests || []).map(async (request) => {
+          // Get the requester's profile
+          const { data: profileData } = await supabase
+            .from('profiles')
+            .select('display_name, first_name, last_name, avatar_url')
+            .eq('id', request.requester_id)
+            .single();
+            
+          return {
+            ...request,
+            profile: profileData || undefined
+          } as ConnectionWithProfile;
+        }));
+
+        setPendingRequests(processedPendingRequests);
       } catch (error) {
         console.error('Error fetching connections:', error);
         setError('Failed to load connections');

@@ -9,7 +9,7 @@ import BottomNavigation from '@/components/dashboard/BottomNavigation';
 import TributeActions from '@/components/dashboard/TributeActions';
 import { useDashboardTime } from '@/hooks/useDashboardTime';
 import { useUserProfile } from '@/hooks/useUserProfile';
-import { mockNotifications, mockActivity, mockMatches, quickActions, recentTributes } from '@/data/dashboardMockData';
+import { mockActivity, mockMatches, quickActions, recentTributes } from '@/data/dashboardMockData';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -28,7 +28,6 @@ const Dashboard = () => {
       <DashboardHeader profile={profile} user={user} time={time} />
       
       <DashboardContent 
-        notifications={mockNotifications}
         activities={mockActivity}
         matches={mockMatches}
         quickActions={quickActions}
