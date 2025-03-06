@@ -78,7 +78,13 @@ export const uploadMediaFiles = async (
       const filePath = `${userId}/${postId}/${fileName}`;
       
       // Update status to uploading
-      updateFileStatus(file.name, 'uploading', 1, undefined, setMediaFiles, setUploadProgress);
+      updateFileStatus(
+        file.name, 
+        'uploading', 
+        1, 
+        setMediaFiles, 
+        setUploadProgress
+      );
       
       // Upload file
       const { data: uploadData, error: uploadError } = await supabase.storage
@@ -89,12 +95,25 @@ export const uploadMediaFiles = async (
         });
       
       if (uploadError) {
-        updateFileStatus(file.name, 'error', 0, uploadError.message, setMediaFiles, setUploadProgress);
+        updateFileStatus(
+          file.name, 
+          'error', 
+          0, 
+          setMediaFiles, 
+          setUploadProgress, 
+          uploadError.message
+        );
         throw uploadError;
       }
       
       // Manually track progress since we don't have real-time progress
-      updateFileStatus(file.name, 'processing', 50, undefined, setMediaFiles, setUploadProgress);
+      updateFileStatus(
+        file.name, 
+        'processing', 
+        50, 
+        setMediaFiles, 
+        setUploadProgress
+      );
       
       // Get public URL
       const { data: { publicUrl } } = supabase.storage
@@ -110,7 +129,13 @@ export const uploadMediaFiles = async (
       }
       
       // Update to reflect post_media creation started
-      updateFileStatus(file.name, 'processing', 90, undefined, setMediaFiles, setUploadProgress);
+      updateFileStatus(
+        file.name, 
+        'processing', 
+        90, 
+        setMediaFiles, 
+        setUploadProgress
+      );
       
       // Create media record
       const { data: mediaData, error: mediaError } = await supabase
@@ -128,12 +153,25 @@ export const uploadMediaFiles = async (
         .single();
         
       if (mediaError) {
-        updateFileStatus(file.name, 'error', 0, mediaError.message, setMediaFiles, setUploadProgress);
+        updateFileStatus(
+          file.name, 
+          'error', 
+          0, 
+          setMediaFiles, 
+          setUploadProgress, 
+          mediaError.message
+        );
         throw mediaError;
       }
       
       // Update to complete
-      updateFileStatus(file.name, 'complete', 100, undefined, setMediaFiles, setUploadProgress);
+      updateFileStatus(
+        file.name, 
+        'complete', 
+        100, 
+        setMediaFiles, 
+        setUploadProgress
+      );
       
       return mediaData;
     });
