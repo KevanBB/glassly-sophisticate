@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, ExternalLink } from 'lucide-react';
 import { useStripeConnectContext } from '@/components/payments/StripeConnectProvider';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 
 const StripeStatusPanel = () => {
   const { isOnboarded, hasStripeAccount, refreshAccount, loading, getOnboardingLink } = useStripeConnectContext();
