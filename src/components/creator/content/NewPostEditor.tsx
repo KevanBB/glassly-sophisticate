@@ -12,7 +12,7 @@ import GlassPanel from '@/components/ui/GlassPanel';
 import NewMediaUploader from './NewMediaUploader';
 import VisibilitySelector from './VisibilitySelector';
 import TagsSelector from './TagsSelector';
-import { FileWithMetadata, uploadMediaFiles } from './utils/uploaderUtils';
+import { FileWithMetadata, uploadMediaFiles, ensureMediaBucketExists } from './utils/uploaderUtils';
 
 interface PostEditorProps {
   onSuccess?: () => void;
@@ -28,6 +28,11 @@ const NewPostEditor = ({ onSuccess }: PostEditorProps) => {
   const [price, setPrice] = useState<number | undefined>(undefined);
   const [tags, setTags] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Ensure bucket exists when component mounts
+  React.useEffect(() => {
+    ensureMediaBucketExists();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +66,7 @@ const NewPostEditor = ({ onSuccess }: PostEditorProps) => {
       
       if (postError) throw postError;
       
-      // 2. Upload files and create media records
+      // 2. Finalize media uploads and create media records
       await uploadMediaFiles(
         mediaFiles,
         user.id,

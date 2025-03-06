@@ -1,13 +1,40 @@
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { toast } from 'sonner';
-import { FileWithMetadata } from '../utils/uploaderUtils';
+import { FileWithMetadata, uploadSingleFile } from '../utils/uploaderUtils';
+import { useAuth } from '@/context/AuthContext';
 
 export const useMediaFiles = (
   initialFiles: FileWithMetadata[] = [], 
   onChange: (files: FileWithMetadata[]) => void
 ) => {
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
+  const { user } = useAuth();
+
+  // Upload files automatically when they're added
+  useEffect(() => {
+    const uploadPendingFiles = async () => {
+      if (!user) return;
+      
+      // Find files that need to be uploaded (status is pending)
+      const pendingFiles = initialFiles.filter(file => 
+        file.status === 'pending' && !file.media_url
+      );
+      
+      if (pendingFiles.length === 0) return;
+      
+      // Upload each pending file
+      for (const file of pendingFiles) {
+        await uploadSingleFile(file, user.id, setFiles, setUploadProgress);
+      }
+    };
+    
+    uploadPendingFiles();
+  }, [initialFiles, user]);
+
+  const setFiles = useCallback((newFiles: FileWithMetadata[] | ((prev: FileWithMetadata[]) => FileWithMetadata[])) => {
+    onChange(typeof newFiles === 'function' ? newFiles(initialFiles) : newFiles);
+  }, [initialFiles, onChange]);
 
   const addFiles = useCallback((selectedFiles: File[]) => {
     const totalFilesAfterAddition = initialFiles.length + selectedFiles.length;
@@ -35,8 +62,8 @@ export const useMediaFiles = (
       };
     });
     
-    onChange([...initialFiles, ...newFiles]);
-  }, [initialFiles, onChange]);
+    setFiles([...initialFiles, ...newFiles]);
+  }, [initialFiles, setFiles]);
   
   const removeFile = useCallback((index: number) => {
     const newFiles = [...initialFiles];
@@ -54,8 +81,8 @@ export const useMediaFiles = (
       position: i
     }));
     
-    onChange(reorderedFiles);
-  }, [initialFiles, onChange]);
+    setFiles(reorderedFiles);
+  }, [initialFiles, setFiles]);
   
   const moveFile = useCallback((index: number, direction: 'up' | 'down') => {
     if (
@@ -75,14 +102,14 @@ export const useMediaFiles = (
     // Swap elements
     [newFiles[index], newFiles[targetIndex]] = [newFiles[targetIndex], newFiles[index]];
     
-    onChange(newFiles);
-  }, [initialFiles, onChange]);
+    setFiles(newFiles);
+  }, [initialFiles, setFiles]);
   
   const updateCaption = useCallback((index: number, newCaption: string) => {
     const newFiles = [...initialFiles];
     newFiles[index].caption = newCaption;
-    onChange(newFiles);
-  }, [initialFiles, onChange]);
+    setFiles(newFiles);
+  }, [initialFiles, setFiles]);
 
   const clearAllFiles = useCallback(() => {
     // Clear all files
@@ -91,8 +118,8 @@ export const useMediaFiles = (
         URL.revokeObjectURL(file.preview);
       }
     });
-    onChange([]);
-  }, [initialFiles, onChange]);
+    setFiles([]);
+  }, [initialFiles, setFiles]);
 
   return {
     uploadProgress,

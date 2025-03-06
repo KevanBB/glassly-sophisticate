@@ -37,7 +37,11 @@ const MediaFilePreview = ({
   return (
     <div className="border border-white/10 rounded-md overflow-hidden bg-background/50 transition-all duration-200 hover:border-white/20 group">
       <div className="relative">
-        <FilePreviewThumbnail fileType={fileType} preview={file.preview} />
+        <FilePreviewThumbnail 
+          fileType={fileType} 
+          preview={file.preview} 
+          media_url={file.media_url} 
+        />
         
         <FileActions 
           index={index} 
