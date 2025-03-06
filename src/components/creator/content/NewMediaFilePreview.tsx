@@ -30,6 +30,11 @@ const NewMediaFilePreview = ({
   const [isEditingCaption, setIsEditingCaption] = useState(false);
   const [captionText, setCaptionText] = useState(file.caption || '');
   
+  // Add safety checks for file type
+  const fileType = file?.type || '';
+  const isImage = fileType.startsWith('image/');
+  const isVideo = fileType.startsWith('video/');
+  
   const getStatusText = (status?: string) => {
     switch (status) {
       case 'pending': return 'Ready to upload';
@@ -66,7 +71,7 @@ const NewMediaFilePreview = ({
   return (
     <div className="border border-white/10 rounded-md overflow-hidden bg-background/50 transition-all duration-200 hover:border-white/20 group">
       <div className="relative">
-        {file.type.startsWith('image/') ? (
+        {isImage ? (
           <div className="relative aspect-video bg-black/40 overflow-hidden">
             <img 
               src={file.preview} 
@@ -80,7 +85,7 @@ const NewMediaFilePreview = ({
               </div>
             </div>
           </div>
-        ) : file.type.startsWith('video/') ? (
+        ) : isVideo ? (
           <div className="relative aspect-video bg-black/50 flex items-center justify-center">
             <Video className="w-12 h-12 text-white/60" />
             <div className="absolute bottom-2 left-2 bg-black/60 rounded-md px-2 py-1">
