@@ -99,15 +99,15 @@ export function useCreatorPosts(creatorId?: string, username?: string) {
               tags: post.tags || [],
               created_at: post.created_at,
               updated_at: post.updated_at,
-              likes_count: post.likes_count !== undefined ? post.likes_count : 0,
-              comments_count: post.comments_count !== undefined ? post.comments_count : 0
+              likes_count: 0, // Default value since it might not exist in the database
+              comments_count: 0 // Default value since it might not exist in the database
             };
             
             return typedPost;
           })
         );
         
-        setPosts(postsWithMedia);
+        setPosts(postsWithMedia as Post[]);
       } catch (error) {
         console.error('Error fetching posts:', error);
         setError(error instanceof Error ? error.message : 'Failed to load posts');
