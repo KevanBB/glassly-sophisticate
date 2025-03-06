@@ -21,7 +21,47 @@ interface Filters {
   sort: string;
 }
 
-export function useUserData(searchQuery: string, filters: Filters, pagination = false) {
+// This version is for fetching a single user's data
+export function useUserData(userId?: string | null) {
+  const [userData, setUserData] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) {
+        setIsLoading(false);
+        return;
+      }
+
+      setIsLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', userId)
+          .single();
+
+        if (error) {
+          console.error('Error fetching user data:', error);
+          return;
+        }
+
+        setUserData(data);
+      } catch (error) {
+        console.error('Error in fetchUserData:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  return { userData, isLoading };
+}
+
+// This version is for fetching multiple users with filtering and pagination
+export function useUsersData(searchQuery: string, filters: Filters, pagination = false) {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
