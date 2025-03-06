@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -17,6 +16,7 @@ import MessagesPage from './pages/Messages';
 import CommunityPage from './pages/Community';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StripeConnectProvider } from './components/payments/StripeConnectProvider';
+import UserProfile from './pages/UserProfile';
 
 const queryClient = new QueryClient();
 
@@ -91,6 +91,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CommunityPage />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/profile/:userId" 
+              element={
+                <ProtectedRoute>
+                  <UserProfile />
                 </ProtectedRoute>
               } 
             />
