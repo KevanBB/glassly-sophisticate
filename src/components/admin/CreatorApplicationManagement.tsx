@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -45,8 +44,7 @@ interface CreatorApplication {
   created_at: string;
   status: string;
   denial_reason?: string;
-  profile_display_name?: string | null;
-  profile_avatar_url?: string | null;
+  profile?: ProfileData | null;
 }
 
 const denialReasons = [
@@ -62,22 +60,37 @@ const denialReasons = [
 const fetchCreatorApplications = async () => {
   console.log('Fetching creator applications...');
   
-  // Use the direct table approach with join
-  const { data, error } = await supabase
+  const { data: applications, error: applicationsError } = await supabase
     .from('creator_applications')
-    .select(`
-      *,
-      profiles:profiles(display_name, avatar_url)
-    `)
+    .select('*')
     .order('created_at', { ascending: true });
 
-  if (error) {
-    console.error('Error fetching applications:', error);
-    throw error;
+  if (applicationsError) {
+    console.error('Error fetching applications:', applicationsError);
+    throw applicationsError;
   }
   
-  console.log('Fetched applications:', data);
-  return data;
+  const applicationsWithProfiles = await Promise.all(
+    applications.map(async (application) => {
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('display_name, avatar_url')
+        .eq('id', application.user_id)
+        .single();
+        
+      if (profileError && profileError.code !== 'PGRST116') {
+        console.warn(`Could not fetch profile for user ${application.user_id}:`, profileError);
+      }
+      
+      return {
+        ...application,
+        profile: profileData || null
+      };
+    })
+  );
+  
+  console.log('Fetched applications with profiles:', applicationsWithProfiles);
+  return applicationsWithProfiles;
 };
 
 const CreatorApplicationManagement = () => {
@@ -105,7 +118,6 @@ const CreatorApplicationManagement = () => {
 
     if (error) throw error;
     
-    // Log admin action
     await supabase.from('admin_actions').insert({
       admin_id: (await supabase.auth.getUser()).data.user?.id,
       action_type: `creator_application_${status}`,
@@ -217,7 +229,7 @@ const CreatorApplicationManagement = () => {
                 <div className="flex justify-between items-center flex-wrap gap-4">
                   <div>
                     <h3 className="font-medium text-white flex items-center">
-                      {application.profiles?.display_name || 
+                      {application.profile?.display_name || 
                        application.display_name || 
                        `${application.legal_first_name} ${application.legal_last_name}`}
                     </h3>
@@ -274,7 +286,6 @@ const CreatorApplicationManagement = () => {
         )}
       </GlassPanel>
 
-      {/* Application Details Dialog */}
       <Dialog open={detailsOpen} onOpenChange={setDetailsOpen}>
         <DialogContent className="bg-gunmetal border border-white/10 text-white max-w-3xl">
           <DialogHeader>
@@ -388,7 +399,6 @@ const CreatorApplicationManagement = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Confirm Action Dialog */}
       <Dialog open={confirmDialogOpen} onOpenChange={setConfirmDialogOpen}>
         <DialogContent className="bg-gunmetal border border-white/10 text-white">
           <DialogHeader>
