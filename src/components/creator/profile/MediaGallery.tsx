@@ -110,8 +110,8 @@ const MediaGallery = ({ viewType, onViewChange, creatorId, username }: MediaGall
               tags: post.tags || [],
               created_at: post.created_at,
               updated_at: post.updated_at,
-              likes_count: post.likes_count,
-              comments_count: post.comments_count
+              likes_count: post.likes_count || 0,
+              comments_count: post.comments_count || 0
             };
             
             return typedPost;
