@@ -18,6 +18,7 @@ export const CreatorApplicationStatus = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const [application, setApplication] = useState<Application | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -52,13 +53,39 @@ export const CreatorApplicationStatus = () => {
       )
       .subscribe();
 
+    // Also listen for status changes in the creator_applications table
+    const applicationsSubscription = supabase
+      .channel('application-updates')
+      .on('postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'creator_applications', filter: `user_id=eq.${user?.id}` },
+        (payload) => {
+          // Update the local state when the application status changes
+          if (payload.new && payload.new.status) {
+            setApplication(prev => prev ? { ...prev, status: payload.new.status } : null);
+            
+            // If approved, show notification and prepare to redirect
+            if (payload.new.status === 'approved') {
+              toast({
+                title: "Application Approved",
+                description: "Your creator application has been approved! Redirecting to onboarding...",
+              });
+              // Short delay before redirect to allow the user to see the toast
+              setTimeout(() => navigate('/creator/onboarding'), 1500);
+            }
+          }
+        }
+      )
+      .subscribe();
+
     return () => {
       supabase.removeChannel(notificationsSubscription);
+      supabase.removeChannel(applicationsSubscription);
     };
-  }, [user, navigate]);
+  }, [user, navigate, toast]);
 
   const handleCancel = async () => {
     if (!application || !user) return;
+    setIsLoading(true);
 
     try {
       const { error } = await supabase
@@ -82,6 +109,8 @@ export const CreatorApplicationStatus = () => {
         description: "Failed to cancel application. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -92,7 +121,9 @@ export const CreatorApplicationStatus = () => {
       <h3 className="text-lg font-semibold text-white mb-4">Creator Application Status</h3>
       <div className="space-y-2">
         <p className="text-white/70">
-          Status: <span className="font-medium text-white">{application.status}</span>
+          Status: <span className={`font-medium ${application.status === 'approved' ? 'text-green-400' : application.status === 'rejected' ? 'text-red-400' : application.status === 'cancelled' ? 'text-gray-400' : 'text-white'}`}>
+            {application.status}
+          </span>
         </p>
         <p className="text-white/70">
           Submitted: {format(new Date(application.created_at), 'PPP')}
@@ -101,9 +132,19 @@ export const CreatorApplicationStatus = () => {
           <Button
             variant="destructive"
             onClick={handleCancel}
+            disabled={isLoading}
             className="mt-4"
           >
-            Cancel Application
+            {isLoading ? 'Cancelling...' : 'Cancel Application'}
+          </Button>
+        )}
+        {application.status === 'approved' && (
+          <Button
+            variant="default"
+            onClick={() => navigate('/creator/onboarding')}
+            className="mt-4"
+          >
+            Continue to Onboarding
           </Button>
         )}
       </div>
