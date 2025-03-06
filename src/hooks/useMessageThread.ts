@@ -83,7 +83,7 @@ export const useMessageThread = (user: any, contact: Contact | null) => {
       }
     }, 60000); // Every minute
     
-    // Set up realtime subscription for this conversation
+    // Create a single subscription with multiple filters
     const messagesSubscription = supabase
       .channel('message-thread')
       .on('postgres_changes', { 
@@ -92,25 +92,7 @@ export const useMessageThread = (user: any, contact: Contact | null) => {
         table: 'messages',
         filter: `sender_id=eq.${user.id},receiver_id=eq.${contact.id}` 
       }, (payload) => {
-        // Add new message from current user to contact
-        const dbMsg = payload.new as any;
-        const newMsg: Message = {
-          id: dbMsg.id,
-          sender_id: dbMsg.sender_id,
-          receiver_id: dbMsg.receiver_id,
-          content: dbMsg.content,
-          type: (dbMsg.media_type as MessageType) || 'text',
-          created_at: dbMsg.created_at || new Date().toISOString(),
-          read: dbMsg.read_at !== null,
-          self_destruct_time: dbMsg.is_self_destruct ? 
-            (typeof dbMsg.destruct_after === 'string' ? 
-              parseInt(dbMsg.destruct_after.split(' ')[0], 10) : 
-              null) : 
-            null,
-          media_url: dbMsg.media_url
-        };
-        
-        setMessages(prev => [...prev, newMsg]);
+        handleNewMessage(payload.new);
       })
       .on('postgres_changes', { 
         event: 'INSERT', 
@@ -118,25 +100,8 @@ export const useMessageThread = (user: any, contact: Contact | null) => {
         table: 'messages',
         filter: `sender_id=eq.${contact.id},receiver_id=eq.${user.id}` 
       }, (payload) => {
-        // Add new message from contact to current user
-        const dbMsg = payload.new as any;
-        const newMsg: Message = {
-          id: dbMsg.id,
-          sender_id: dbMsg.sender_id,
-          receiver_id: dbMsg.receiver_id,
-          content: dbMsg.content,
-          type: (dbMsg.media_type as MessageType) || 'text',
-          created_at: dbMsg.created_at || new Date().toISOString(),
-          read: dbMsg.read_at !== null,
-          self_destruct_time: dbMsg.is_self_destruct ? 
-            (typeof dbMsg.destruct_after === 'string' ? 
-              parseInt(dbMsg.destruct_after.split(' ')[0], 10) : 
-              null) : 
-            null,
-          media_url: dbMsg.media_url
-        };
-        
-        setMessages(prev => [...prev, newMsg]);
+        handleNewMessage(payload.new);
+        markMessageAsRead(payload.new.id);
       })
       .subscribe();
       
@@ -157,6 +122,39 @@ export const useMessageThread = (user: any, contact: Contact | null) => {
     };
     
     markAsRead();
+    
+    // Helper function to handle new messages from subscription
+    const handleNewMessage = (dbMsg: any) => {
+      const newMsg: Message = {
+        id: dbMsg.id,
+        sender_id: dbMsg.sender_id,
+        receiver_id: dbMsg.receiver_id,
+        content: dbMsg.content,
+        type: (dbMsg.media_type as MessageType) || 'text',
+        created_at: dbMsg.created_at || new Date().toISOString(),
+        read: dbMsg.read_at !== null,
+        self_destruct_time: dbMsg.is_self_destruct ? 
+          (typeof dbMsg.destruct_after === 'string' ? 
+            parseInt(dbMsg.destruct_after.split(' ')[0], 10) : 
+            null) : 
+          null,
+        media_url: dbMsg.media_url
+      };
+      
+      setMessages(prev => [...prev, newMsg]);
+    };
+    
+    // Helper function to mark a message as read
+    const markMessageAsRead = async (messageId: string) => {
+      try {
+        await supabase
+          .from('messages')
+          .update({ read_at: new Date().toISOString() })
+          .eq('id', messageId);
+      } catch (error) {
+        console.error('Error marking message as read:', error);
+      }
+    };
     
     return () => {
       clearInterval(activityInterval);

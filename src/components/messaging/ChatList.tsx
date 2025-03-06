@@ -2,6 +2,7 @@
 import React from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { Check, CheckCheck } from 'lucide-react';
+import UserAvatar from '@/components/community/UserAvatar';
 import type { Contact } from '@/types/messaging';
 
 interface ChatListProps {
@@ -54,25 +55,18 @@ const ChatList: React.FC<ChatListProps> = ({ conversations, activeChat, onSelect
               }`}
             >
               <div className="relative">
-                <div className="w-12 h-12 rounded-full bg-white/10 overflow-hidden">
-                  {chat.avatar_url ? (
-                    <img 
-                      src={chat.avatar_url} 
-                      alt={chat.first_name || 'Contact'} 
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-white font-medium">
-                      {chat.first_name?.[0] || '?'}
-                    </div>
-                  )}
-                </div>
+                <UserAvatar
+                  user={chat}
+                  size="md"
+                  showActiveIndicator={true}
+                  linkToProfile={false}
+                />
                 
-                {chat.unreadCount && chat.unreadCount > 0 && (
+                {chat.unreadCount && chat.unreadCount > 0 ? (
                   <div className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-brand flex items-center justify-center text-xs text-white">
                     {chat.unreadCount}
                   </div>
-                )}
+                ) : null}
               </div>
               
               <div className="ml-3 flex-1 min-w-0">

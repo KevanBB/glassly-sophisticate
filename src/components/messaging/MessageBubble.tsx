@@ -3,14 +3,22 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { formatDistanceToNow, format } from 'date-fns';
 import { Check, CheckCheck, Lock, Clock, Eye } from 'lucide-react';
+import UserAvatar from '@/components/community/UserAvatar';
 import type { Message } from '@/types/messaging';
 
 interface MessageBubbleProps {
   message: Message;
   isFromCurrentUser: boolean;
+  senderAvatar?: string;
+  receiverAvatar?: string;
 }
 
-const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isFromCurrentUser }) => {
+const MessageBubble: React.FC<MessageBubbleProps> = ({ 
+  message, 
+  isFromCurrentUser,
+  senderAvatar,
+  receiverAvatar
+}) => {
   const [isExpiring, setIsExpiring] = useState(false);
   const [remainingTime, setRemainingTime] = useState<number | null>(null);
   const [isVisible, setIsVisible] = useState(true);
@@ -104,8 +112,24 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isFromCurrentUse
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, height: 0 }}
-        className={`flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'}`}
+        className={`flex ${isFromCurrentUser ? 'justify-end' : 'justify-start'} mb-4`}
       >
+        {/* Avatar for messages from other users */}
+        {!isFromCurrentUser && (
+          <div className="mr-2 self-end mb-1">
+            <UserAvatar 
+              user={{ 
+                id: message.sender_id, 
+                avatar_url: senderAvatar || null,
+                first_name: '',
+                is_active: true 
+              }} 
+              size="sm" 
+              showActiveIndicator={false} 
+            />
+          </div>
+        )}
+        
         <div
           className={`max-w-[75%] ${
             isFromCurrentUser
@@ -145,6 +169,22 @@ const MessageBubble: React.FC<MessageBubbleProps> = ({ message, isFromCurrentUse
             )}
           </div>
         </div>
+        
+        {/* Avatar for current user's messages */}
+        {isFromCurrentUser && (
+          <div className="ml-2 self-end mb-1">
+            <UserAvatar 
+              user={{ 
+                id: message.sender_id, 
+                avatar_url: receiverAvatar || null,
+                first_name: '',
+                is_active: true 
+              }} 
+              size="sm" 
+              showActiveIndicator={false} 
+            />
+          </div>
+        )}
       </motion.div>
     </AnimatePresence>
   );

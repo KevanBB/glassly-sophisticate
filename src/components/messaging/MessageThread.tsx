@@ -6,6 +6,7 @@ import MessagesContainer from './MessagesContainer';
 import MessageComposer from './MessageComposer';
 import { useMessageThread } from '@/hooks/useMessageThread';
 import { MessageThreadProvider } from '@/context/MessageThreadContext';
+import { useUserData } from '@/hooks/useUserData';
 import type { Contact } from '@/types/messaging';
 
 interface MessageThreadProps {
@@ -15,6 +16,7 @@ interface MessageThreadProps {
 const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
   const { user } = useAuth();
   const { messages, isLoading } = useMessageThread(user, contact);
+  const { userData, isLoading: isUserDataLoading } = useUserData(user?.id);
   
   return (
     <MessageThreadProvider user={user} contact={contact}>
@@ -28,6 +30,8 @@ const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
           isLoading={isLoading} 
           userId={user?.id}
           contactName={contact.first_name} 
+          userAvatar={userData?.avatar_url}
+          contactAvatar={contact.avatar_url}
         />
         
         {/* Message composer with self-destruct controls and input */}

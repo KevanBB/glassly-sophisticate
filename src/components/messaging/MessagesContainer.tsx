@@ -9,13 +9,17 @@ interface MessagesContainerProps {
   isLoading: boolean;
   userId: string | undefined;
   contactName?: string | null;
+  userAvatar?: string | null;
+  contactAvatar?: string | null;
 }
 
 const MessagesContainer: React.FC<MessagesContainerProps> = ({ 
   messages, 
   isLoading, 
   userId,
-  contactName
+  contactName,
+  userAvatar,
+  contactAvatar
 }) => {
   const messageEndRef = useRef<HTMLDivElement>(null);
 
@@ -45,6 +49,8 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
             key={message.id}
             message={message}
             isFromCurrentUser={message.sender_id === userId}
+            senderAvatar={contactAvatar || undefined}
+            receiverAvatar={userAvatar || undefined}
           />
         ))
       )}
