@@ -38,6 +38,7 @@ const Index = () => {
                   type="video/mp4" />
           Your browser does not support the video tag.
         </video>
+      </div>
 
       {/* Content */}
       <div className="text-center space-y-6 max-w-3xl mx-auto z-10">
