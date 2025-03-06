@@ -84,6 +84,69 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_applications: {
+        Row: {
+          address: string
+          birthday: string
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          id_back_url: string
+          id_front_url: string
+          id_selfie_url: string
+          legal_first_name: string
+          legal_last_name: string
+          legal_middle_name: string | null
+          signature: string
+          signature_date: string
+          status: string
+          terms_agreed: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          address: string
+          birthday: string
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          id_back_url: string
+          id_front_url: string
+          id_selfie_url: string
+          legal_first_name: string
+          legal_last_name: string
+          legal_middle_name?: string | null
+          signature: string
+          signature_date: string
+          status?: string
+          terms_agreed?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          address?: string
+          birthday?: string
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          id_back_url?: string
+          id_front_url?: string
+          id_selfie_url?: string
+          legal_first_name?: string
+          legal_last_name?: string
+          legal_middle_name?: string | null
+          signature?: string
+          signature_date?: string
+          status?: string
+          terms_agreed?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       messages: {
         Row: {
           content: string
