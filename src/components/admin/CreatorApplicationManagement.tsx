@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
@@ -24,6 +23,11 @@ import {
 } from '@/components/ui/dialog';
 import { Skeleton } from '@/components/ui/skeleton';
 
+interface ProfileData {
+  display_name: string | null;
+  avatar_url: string | null;
+}
+
 interface CreatorApplication {
   id: string;
   user_id: string;
@@ -39,10 +43,7 @@ interface CreatorApplication {
   id_selfie_url: string;
   created_at: string;
   status: string;
-  user_profile?: {
-    display_name: string | null;
-    avatar_url: string | null;
-  };
+  user_profile?: ProfileData | null;
 }
 
 const denialReasons = [
@@ -65,7 +66,9 @@ const fetchCreatorApplications = async () => {
     .order('created_at', { ascending: true }); // Oldest to newest
 
   if (error) throw error;
-  return data as CreatorApplication[];
+  
+  // Type assertion to handle the potential data shape mismatch
+  return data as unknown as CreatorApplication[];
 };
 
 const CreatorApplicationManagement = () => {
