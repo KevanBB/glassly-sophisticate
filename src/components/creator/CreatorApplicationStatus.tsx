@@ -1,4 +1,6 @@
+
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -14,6 +16,7 @@ interface Application {
 export const CreatorApplicationStatus = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [application, setApplication] = useState<Application | null>(null);
 
   useEffect(() => {
