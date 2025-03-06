@@ -13,8 +13,8 @@ import { CreatorApplicationForm } from './components/creator/CreatorApplicationF
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
+    <Router>
+      <AuthProvider>
         <Toaster />
         <Routes>
           <Route path="/" element={<Index />} />
@@ -45,8 +45,8 @@ function App() {
             } 
           />
         </Routes>
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 
