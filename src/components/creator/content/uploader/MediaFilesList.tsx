@@ -1,9 +1,8 @@
-
 import React from 'react';
 import { X, Grip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FileWithMetadata } from '../utils/uploaderUtils';
-import NewMediaFilePreview from '../NewMediaFilePreview';
+import MediaFilePreview from '../media-preview/MediaFilePreview';
 
 interface MediaFilesListProps {
   mediaFiles: FileWithMetadata[];
@@ -54,7 +53,7 @@ const MediaFilesList = ({
       
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {mediaFiles.map((file, index) => (
-          <NewMediaFilePreview
+          <MediaFilePreview
             key={index}
             file={file}
             index={index}

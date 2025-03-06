@@ -1,4 +1,3 @@
-
 import React, { useRef } from 'react';
 import { FileWithMetadata } from './utils/uploaderUtils';
 import { useMediaFiles } from './uploader/useMediaFiles';
@@ -19,6 +18,7 @@ const NewMediaUploader = ({
   onChange,
   uploadProgress
 }: NewMediaUploaderProps) => {
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { 
