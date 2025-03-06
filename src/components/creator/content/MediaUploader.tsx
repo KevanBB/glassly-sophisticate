@@ -17,6 +17,9 @@ const MediaUploader = ({ mediaFiles, isSubmitting, onChange }: MediaUploaderProp
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    // Prevent form submission when a file is selected
+    e.preventDefault();
+    
     if (!e.target.files) return;
     
     const selectedFiles = Array.from(e.target.files);
@@ -106,7 +109,10 @@ const MediaUploader = ({ mediaFiles, isSubmitting, onChange }: MediaUploaderProp
         <div className="flex gap-2">
           <Button 
             type="button"
-            onClick={() => fileInputRef.current?.click()}
+            onClick={(e) => {
+              e.preventDefault(); // Prevent form submission when clicking "Add Media"
+              fileInputRef.current?.click();
+            }}
             disabled={mediaFiles.length >= 10 || isSubmitting}
             variant="outline"
             size="sm"
