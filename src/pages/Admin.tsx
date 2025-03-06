@@ -8,11 +8,12 @@ import DashboardBackground from '@/components/dashboard/DashboardBackground';
 import BottomNavigation from '@/components/dashboard/BottomNavigation';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import GlassPanel from '@/components/ui/GlassPanel';
-import { Loader2, Users, Activity, Settings, Shield, LineChart } from 'lucide-react';
+import { Loader2, Users, Activity, Settings, Shield, LineChart, UserCog } from 'lucide-react';
 import UserManagement from '@/components/admin/UserManagement';
 import ActivityLog from '@/components/admin/ActivityLog';
 import AdminSettings from '@/components/admin/AdminSettings';
 import AnalyticsDashboard from '@/components/admin/AnalyticsDashboard';
+import CreatorApplicationManagement from '@/components/admin/CreatorApplicationManagement';
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -91,11 +92,15 @@ const AdminDashboard = () => {
           </p>
         </GlassPanel>
 
-        <Tabs defaultValue="analytics" className="w-full">
+        <Tabs defaultValue="creator-applications" className="w-full">
           <TabsList className="bg-glass-20 border border-white/10 w-full justify-start mb-6 overflow-x-auto">
             <TabsTrigger value="analytics" className="data-[state=active]:bg-primary data-[state=active]:text-white">
               <LineChart className="mr-2 h-4 w-4" />
               Analytics
+            </TabsTrigger>
+            <TabsTrigger value="creator-applications" className="data-[state=active]:bg-primary data-[state=active]:text-white">
+              <UserCog className="mr-2 h-4 w-4" />
+              Creator Applications
             </TabsTrigger>
             <TabsTrigger value="users" className="data-[state=active]:bg-primary data-[state=active]:text-white">
               <Users className="mr-2 h-4 w-4" />
@@ -113,6 +118,10 @@ const AdminDashboard = () => {
           
           <TabsContent value="analytics">
             <AnalyticsDashboard />
+          </TabsContent>
+          
+          <TabsContent value="creator-applications">
+            <CreatorApplicationManagement />
           </TabsContent>
           
           <TabsContent value="users">
