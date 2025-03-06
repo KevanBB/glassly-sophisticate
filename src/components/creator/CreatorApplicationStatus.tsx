@@ -1,4 +1,3 @@
-
 import { useEffect, useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,7 +37,22 @@ export const CreatorApplicationStatus = () => {
     };
 
     fetchApplication();
-  }, [user]);
+
+    // Add subscription for creator approval notifications
+    const notificationsSubscription = supabase
+      .channel('creator-notifications')
+      .on('postgres_changes', 
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user?.id} AND type=eq.creator_approved` },
+        () => {
+          navigate('/creator/onboarding');
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(notificationsSubscription);
+    };
+  }, [user, navigate]);
 
   const handleCancel = async () => {
     if (!application || !user) return;
@@ -93,3 +107,5 @@ export const CreatorApplicationStatus = () => {
     </div>
   );
 };
+
+export default CreatorApplicationStatus;

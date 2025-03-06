@@ -147,6 +147,47 @@ export type Database = {
         }
         Relationships: []
       }
+      creator_onboarding: {
+        Row: {
+          created_at: string | null
+          creator_username: string
+          id: string
+          terms_agreed: boolean | null
+          terms_signature: string | null
+          terms_signed_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          creator_username: string
+          id?: string
+          terms_agreed?: boolean | null
+          terms_signature?: string | null
+          terms_signed_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          creator_username?: string
+          id?: string
+          terms_agreed?: boolean | null
+          terms_signature?: string | null
+          terms_signed_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_onboarding_user_id_fkey1"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -278,12 +319,15 @@ export type Database = {
           avatar_url: string | null
           banner_url: string | null
           bio: string | null
+          creator_onboarding_complete: boolean | null
+          creator_username: string | null
           display_name: string | null
           experience_level: string | null
           first_name: string | null
           gender: string | null
           id: string
           is_active: boolean | null
+          is_creator: boolean | null
           joined_at: string | null
           kinks_fetishes: string[] | null
           last_active: string | null
@@ -299,12 +343,15 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          creator_onboarding_complete?: boolean | null
+          creator_username?: string | null
           display_name?: string | null
           experience_level?: string | null
           first_name?: string | null
           gender?: string | null
           id: string
           is_active?: boolean | null
+          is_creator?: boolean | null
           joined_at?: string | null
           kinks_fetishes?: string[] | null
           last_active?: string | null
@@ -320,12 +367,15 @@ export type Database = {
           avatar_url?: string | null
           banner_url?: string | null
           bio?: string | null
+          creator_onboarding_complete?: boolean | null
+          creator_username?: string | null
           display_name?: string | null
           experience_level?: string | null
           first_name?: string | null
           gender?: string | null
           id?: string
           is_active?: boolean | null
+          is_creator?: boolean | null
           joined_at?: string | null
           kinks_fetishes?: string[] | null
           last_active?: string | null

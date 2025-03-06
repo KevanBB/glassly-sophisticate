@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -10,9 +9,9 @@ import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/Admin';
 import { Toaster } from '@/components/ui/sonner';
 import { CreatorApplicationForm } from './components/creator/CreatorApplicationForm';
+import { CreatorOnboarding } from './pages/creator/CreatorOnboarding';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
-// Create a client
 const queryClient = new QueryClient();
 
 function App() {
@@ -46,6 +45,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreatorApplicationForm />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/creator/onboarding" 
+              element={
+                <ProtectedRoute>
+                  <CreatorOnboarding />
                 </ProtectedRoute>
               } 
             />
