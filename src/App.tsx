@@ -1,10 +1,11 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
+import ProtectedRoute from './components/auth/ProtectedRoute';
 import Index from './pages/Index';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import { Login } from './pages/auth/Login';
+import { Register } from './pages/auth/Register';
 import Dashboard from './pages/Dashboard';
 import AdminDashboard from './pages/Admin';
 import { Toaster } from '@/components/ui/sonner';
