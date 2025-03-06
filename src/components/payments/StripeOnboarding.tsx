@@ -40,11 +40,18 @@ export function StripeOnboarding() {
   const handleCompleteOnboarding = async () => {
     setIsRedirecting(true);
     try {
-      // Use the current URL as the return URL
-      const returnUrl = window.location.href;
+      // Use full URL for return path to ensure proper redirection
+      const currentUrl = window.location.href;
+      const baseUrl = window.location.origin;
+      const returnUrl = currentUrl.includes('/onboarding') 
+        ? currentUrl 
+        : `${baseUrl}/creator/onboarding?step=4`;
+      
       const onboardingUrl = await getOnboardingLink(returnUrl);
       
       if (onboardingUrl) {
+        // Store current path in sessionStorage for return reference
+        sessionStorage.setItem('stripeReturnPath', window.location.pathname);
         window.location.href = onboardingUrl;
       } else {
         throw new Error('Failed to generate onboarding link');
@@ -59,6 +66,7 @@ export function StripeOnboarding() {
   // Handle URL parameters
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    
     if (params.get('success') === 'true') {
       toast.success('Onboarding completed successfully!');
       refreshAccount();
@@ -67,6 +75,15 @@ export function StripeOnboarding() {
       const url = new URL(window.location.href);
       url.searchParams.delete('success');
       window.history.replaceState({}, '', url.toString());
+      
+      // Get stored return path (if any)
+      const returnPath = sessionStorage.getItem('stripeReturnPath');
+      if (returnPath && returnPath !== window.location.pathname) {
+        // Slight delay to allow state changes to complete
+        setTimeout(() => {
+          window.location.pathname = returnPath;
+        }, 1000);
+      }
     }
     
     if (params.get('refresh') === 'true') {
