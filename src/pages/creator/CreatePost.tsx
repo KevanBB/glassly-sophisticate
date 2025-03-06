@@ -5,7 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import PostEditor from '@/components/creator/content/PostEditor';
+import NewPostEditor from '@/components/creator/content/NewPostEditor';
 import { toast } from 'sonner';
 
 const CreatePost = () => {
@@ -40,7 +40,7 @@ const CreatePost = () => {
           <h1 className="text-2xl font-bold text-white">Create New Post</h1>
         </div>
         
-        <PostEditor 
+        <NewPostEditor 
           onSuccess={() => {
             toast.success('Post created successfully!');
             navigate('/creator/dashboard');
