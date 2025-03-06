@@ -430,7 +430,31 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      creator_applications_with_profiles: {
+        Row: {
+          address: string | null
+          birthday: string | null
+          created_at: string | null
+          display_name: string | null
+          email: string | null
+          id: string | null
+          id_back_url: string | null
+          id_front_url: string | null
+          id_selfie_url: string | null
+          legal_first_name: string | null
+          legal_last_name: string | null
+          legal_middle_name: string | null
+          profile_avatar_url: string | null
+          profile_display_name: string | null
+          signature: string | null
+          signature_date: string | null
+          status: string | null
+          terms_agreed: boolean | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

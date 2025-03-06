@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
@@ -43,7 +44,9 @@ interface CreatorApplication {
   id_selfie_url: string;
   created_at: string;
   status: string;
-  user_profile?: ProfileData | null;
+  denial_reason?: string;
+  profile_display_name?: string | null;
+  profile_avatar_url?: string | null;
 }
 
 const denialReasons = [
@@ -57,18 +60,24 @@ const denialReasons = [
 ];
 
 const fetchCreatorApplications = async () => {
+  console.log('Fetching creator applications...');
+  
+  // Use the direct table approach with join
   const { data, error } = await supabase
     .from('creator_applications')
     .select(`
       *,
-      user_profile:profiles(display_name, avatar_url)
+      profiles:profiles(display_name, avatar_url)
     `)
-    .order('created_at', { ascending: true }); // Oldest to newest
+    .order('created_at', { ascending: true });
 
-  if (error) throw error;
+  if (error) {
+    console.error('Error fetching applications:', error);
+    throw error;
+  }
   
-  // Type assertion to handle the potential data shape mismatch
-  return data as unknown as CreatorApplication[];
+  console.log('Fetched applications:', data);
+  return data;
 };
 
 const CreatorApplicationManagement = () => {
@@ -208,7 +217,9 @@ const CreatorApplicationManagement = () => {
                 <div className="flex justify-between items-center flex-wrap gap-4">
                   <div>
                     <h3 className="font-medium text-white flex items-center">
-                      {application.user_profile?.display_name || application.legal_first_name + ' ' + application.legal_last_name}
+                      {application.profiles?.display_name || 
+                       application.display_name || 
+                       `${application.legal_first_name} ${application.legal_last_name}`}
                     </h3>
                     <div className="flex items-center text-sm text-white/60 mt-1">
                       <Calendar className="h-3 w-3 mr-1" />
