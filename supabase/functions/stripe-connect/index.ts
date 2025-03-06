@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.38.4";
 import Stripe from 'https://esm.sh/stripe@12.18.0?target=deno';
@@ -140,6 +139,92 @@ serve(async (req) => {
         });
 
         result = { url: accountLink.url };
+        break;
+
+      case 'create_oauth_link':
+        // Only creators can connect Stripe accounts
+        if (!profile.is_creator) {
+          return new Response(JSON.stringify({ error: 'Only creators can connect Stripe accounts' }), {
+            status: 403,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Create an OAuth link for connecting an existing Stripe account
+        const state = Math.random().toString(36).substring(2, 15);
+        
+        // Store the state temporarily to verify the callback
+        const { error: stateError } = await supabaseClient
+          .from('creator_onboarding')
+          .upsert({
+            user_id: user.id,
+            creator_username: profile.creator_username || `user_${user.id.substring(0, 8)}`,
+            oauth_state: state
+          })
+          .select();
+
+        if (stateError) {
+          throw new Error(`Failed to store OAuth state: ${stateError.message}`);
+        }
+
+        // Generate the OAuth URL
+        const clientId = Deno.env.get('STRIPE_CLIENT_ID');
+        if (!clientId) {
+          throw new Error('STRIPE_CLIENT_ID is not set');
+        }
+
+        const redirectUri = encodeURIComponent(data.returnUrl || 'https://example.com/creator/onboarding');
+        const oauthUrl = `https://connect.stripe.com/oauth/authorize?response_type=code&client_id=${clientId}&scope=read_write&redirect_uri=${redirectUri}&state=${state}`;
+        
+        result = { url: oauthUrl };
+        break;
+
+      case 'handle_oauth_callback':
+        // Verify the code from Stripe OAuth
+        if (!data.code) {
+          return new Response(JSON.stringify({ error: 'Authorization code is required' }), {
+            status: 400,
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          });
+        }
+
+        // Exchange the authorization code for an access token
+        const clientId = Deno.env.get('STRIPE_CLIENT_ID');
+        const secretKey = Deno.env.get('STRIPE_SECRET_KEY');
+        
+        if (!clientId || !secretKey) {
+          throw new Error('Stripe configuration is missing');
+        }
+
+        // Call the Stripe API to exchange the code for an access token
+        const tokenResponse = await fetch('https://connect.stripe.com/oauth/token', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: new URLSearchParams({
+            client_secret: secretKey,
+            grant_type: 'authorization_code',
+            code: data.code,
+          }),
+        });
+
+        const tokenData = await tokenResponse.json();
+        
+        if (tokenData.error) {
+          throw new Error(`Stripe OAuth error: ${tokenData.error_description || tokenData.error}`);
+        }
+
+        // Store the connected account ID in the user's profile
+        await supabaseClient
+          .from('profiles')
+          .update({ stripe_account_id: tokenData.stripe_user_id })
+          .eq('id', user.id);
+
+        result = { 
+          success: true, 
+          accountId: tokenData.stripe_user_id 
+        };
         break;
 
       case 'get_account_status':

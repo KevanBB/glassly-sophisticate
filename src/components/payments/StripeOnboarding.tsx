@@ -1,10 +1,11 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useStripeConnectContext } from './StripeConnectProvider';
 import { useStripeConnect } from '@/hooks/useStripeConnect';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { Check, ExternalLink, RefreshCw, XCircle } from 'lucide-react';
+import StripeOAuthConnect from './StripeOAuthConnect';
 
 export function StripeOnboarding() {
   const { 
@@ -18,6 +19,7 @@ export function StripeOnboarding() {
   const { createStripeAccount } = useStripeConnect();
   const [isCreating, setIsCreating] = useState(false);
   const [isRedirecting, setIsRedirecting] = useState(false);
+  const [connectMethod, setConnectMethod] = useState<'standard' | 'oauth'>('standard');
 
   const handleCreateAccount = async () => {
     setIsCreating(true);
@@ -54,8 +56,8 @@ export function StripeOnboarding() {
     }
   };
 
-  // If the URL has success=true, show a success message
-  React.useEffect(() => {
+  // Handle URL parameters
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (params.get('success') === 'true') {
       toast.success('Onboarding completed successfully!');
@@ -75,7 +77,7 @@ export function StripeOnboarding() {
       url.searchParams.delete('refresh');
       window.history.replaceState({}, '', url.toString());
     }
-  }, []);
+  }, [refreshAccount]);
 
   return (
     <div className="bg-gunmetal/30 border border-white/10 rounded-lg p-6">
@@ -87,16 +89,39 @@ export function StripeOnboarding() {
         </div>
       ) : !hasStripeAccount ? (
         <div className="space-y-4">
-          <p className="text-white/70">
-            To receive payments from users, you need to connect your SubSpace account to Stripe.
-          </p>
-          <Button 
-            onClick={handleCreateAccount} 
-            disabled={isCreating}
-            className="w-full"
-          >
-            {isCreating ? 'Creating account...' : 'Connect with Stripe'}
-          </Button>
+          <div className="flex space-x-2 mb-4">
+            <Button 
+              variant={connectMethod === 'standard' ? 'default' : 'outline'} 
+              onClick={() => setConnectMethod('standard')}
+              size="sm"
+            >
+              Create New Account
+            </Button>
+            <Button 
+              variant={connectMethod === 'oauth' ? 'default' : 'outline'} 
+              onClick={() => setConnectMethod('oauth')}
+              size="sm"
+            >
+              Connect Existing
+            </Button>
+          </div>
+
+          {connectMethod === 'standard' ? (
+            <div className="space-y-4">
+              <p className="text-white/70">
+                To receive payments from users, you need to connect your SubSpace account to Stripe.
+              </p>
+              <Button 
+                onClick={handleCreateAccount} 
+                disabled={isCreating}
+                className="w-full"
+              >
+                {isCreating ? 'Creating account...' : 'Create Stripe Account'}
+              </Button>
+            </div>
+          ) : (
+            <StripeOAuthConnect />
+          )}
         </div>
       ) : !isOnboarded ? (
         <div className="space-y-4">

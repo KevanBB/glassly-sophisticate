@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -65,6 +64,11 @@ export function useStripeConnect() {
     return result?.url;
   };
 
+  const getOAuthLink = async (returnUrl: string) => {
+    const result = await callStripeFunction('create_oauth_link', { returnUrl });
+    return result?.url;
+  };
+
   const getAccountStatus = async () => {
     const result = await callStripeFunction('get_account_status');
     return result?.account as StripeAccount;
@@ -79,12 +83,18 @@ export function useStripeConnect() {
     return result?.clientSecret;
   };
 
+  const handleOAuthCallback = async (code: string) => {
+    return callStripeFunction('handle_oauth_callback', { code });
+  };
+
   return {
     loading,
     error,
     createStripeAccount,
     getOnboardingLink,
+    getOAuthLink,
     getAccountStatus,
     createPaymentIntent,
+    handleOAuthCallback
   };
 }
