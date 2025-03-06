@@ -27,6 +27,16 @@ const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
     const fetchMessages = async () => {
       setIsLoading(true);
       try {
+        // Update user's activity status when they open a message thread
+        const now = new Date().toISOString();
+        await supabase
+          .from('profiles')
+          .update({ 
+            last_active: now,
+            is_active: true 
+          })
+          .eq('id', user.id);
+          
         const { data, error } = await supabase
           .from('messages')
           .select('*')
@@ -66,6 +76,24 @@ const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
     };
     
     fetchMessages();
+    
+    // Set up periodic activity updates
+    const activityInterval = setInterval(async () => {
+      if (user) {
+        try {
+          const now = new Date().toISOString();
+          await supabase
+            .from('profiles')
+            .update({ 
+              last_active: now,
+              is_active: true 
+            })
+            .eq('id', user.id);
+        } catch (error) {
+          console.error('Error updating activity status:', error);
+        }
+      }
+    }, 60000); // Every minute
     
     // Set up realtime subscription for this conversation
     const messagesSubscription = supabase
@@ -117,6 +145,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
     markAsRead();
     
     return () => {
+      clearInterval(activityInterval);
       supabase.removeChannel(messagesSubscription);
     };
   }, [user, contact, toast]);

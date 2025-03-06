@@ -138,8 +138,23 @@ export function useUserProfile(user: any) {
     // Set up a periodic refresh of the profile data to ensure we have the latest activity status
     const refreshInterval = setInterval(fetchProfile, 60000); // Refresh every minute
     
+    // Set up realtime subscription for profile updates
+    const profileSubscription = supabase
+      .channel('profile-changes')
+      .on('postgres_changes', 
+        { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${user?.id}` },
+        (payload) => {
+          // Update profile with realtime changes
+          if (profile) {
+            setProfile(prev => prev ? { ...prev, ...payload.new } : null);
+          }
+        }
+      )
+      .subscribe();
+    
     return () => {
       clearInterval(refreshInterval);
+      supabase.removeChannel(profileSubscription);
     };
   }, [user]);
 
