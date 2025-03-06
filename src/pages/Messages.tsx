@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
@@ -153,7 +154,7 @@ const MessagesPage = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-dark-200 to-dark"
+      className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-dark-200 to-dark pb-16" // Added bottom padding to account for navigation
     >
       <div className="flex flex-1 overflow-hidden">
         <div className="w-1/4 border-r border-white/10 backdrop-blur-md bg-white/5 overflow-hidden flex flex-col">

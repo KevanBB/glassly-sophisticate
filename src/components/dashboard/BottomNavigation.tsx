@@ -21,7 +21,7 @@ const BottomNavigation = () => {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-50 bg-glass-10 backdrop-blur-md border-t border-white/10 py-2">
-      <div className="container max-w-lg mx-auto">
+      <div className="container max-w-lg mx-auto px-4">
         <div className="flex justify-around items-center">
           {navItems.map((item) => (
             <Link

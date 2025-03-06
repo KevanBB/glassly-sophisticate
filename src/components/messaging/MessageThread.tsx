@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/context/AuthContext';
@@ -155,7 +154,7 @@ const MessageThread: React.FC<MessageThreadProps> = ({ contact }) => {
       {/* Header */}
       <ConversationHeader contact={contact} />
       
-      {/* Messages area */}
+      {/* Messages area - make it flex-1 so it takes available space and allows scrolling */}
       <MessagesContainer 
         messages={messages} 
         isLoading={isLoading} 

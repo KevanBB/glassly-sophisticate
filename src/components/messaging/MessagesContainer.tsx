@@ -25,7 +25,7 @@ const MessagesContainer: React.FC<MessagesContainerProps> = ({
   }, [messages]);
 
   return (
-    <div className="flex-1 overflow-y-auto p-4 space-y-4">
+    <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-thin">
       {isLoading ? (
         <div className="flex items-center justify-center h-full">
           <div className="h-8 w-8 rounded-full border-2 border-brand border-t-transparent animate-spin"></div>
