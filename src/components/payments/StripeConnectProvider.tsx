@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useStripeConnect, StripeAccount } from '@/hooks/useStripeConnect';
 import { useAuth } from '@/context/AuthContext';
@@ -69,7 +68,6 @@ export function StripeConnectProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  // Combined isOnboarded status
   const isOnboarded = !!(
     stripeAccount && 
     stripeAccount.details_submitted && 

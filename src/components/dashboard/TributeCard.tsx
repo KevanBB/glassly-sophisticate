@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { CreditCard, DollarSign, Send, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,6 +5,7 @@ import DashboardCard from './DashboardCard';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { PaymentProcessor } from '@/components/payments/PaymentProcessor';
+import { Button } from '@/components/ui/button';
 
 // Define preset amounts for quick selection
 const PRESET_AMOUNTS = [5, 10, 20, 50, 100];

@@ -38,6 +38,7 @@ export interface UserProfile {
   orientation?: string;
   looking_for?: string[];
   privacy_settings?: PrivacySettings;
+  stripe_account_id?: string;
 }
 
 export function useUserProfile(user: any) {
