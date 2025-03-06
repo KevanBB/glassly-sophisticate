@@ -6,6 +6,7 @@ import { RefreshCw, ExternalLink } from 'lucide-react';
 import { useStripeConnectContext } from '@/components/payments/StripeConnectProvider';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
+import { handleStripeUrlParams } from '@/utils/urlHelpers';
 
 const StripeStatusPanel = () => {
   const { isOnboarded, hasStripeAccount, refreshAccount, loading, getOnboardingLink } = useStripeConnectContext();
@@ -14,15 +15,7 @@ const StripeStatusPanel = () => {
   
   // Check URL parameters on mount
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('refresh') === 'true') {
-      refreshAccount();
-      
-      // Clean up the URL
-      const url = new URL(window.location.href);
-      url.searchParams.delete('refresh');
-      window.history.replaceState({}, '', url.toString());
-    }
+    handleStripeUrlParams(refreshAccount);
   }, [refreshAccount]);
   
   const handleCompleteSetup = async () => {

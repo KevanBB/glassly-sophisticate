@@ -5,6 +5,7 @@ import { Check } from 'lucide-react';
 import StripeOnboarding from '@/components/payments/StripeOnboarding';
 import { useStripeConnectContext } from '@/components/payments/StripeConnectProvider';
 import { toast } from 'sonner';
+import { handleStripeUrlParams } from '@/utils/urlHelpers';
 
 interface PaymentStepProps {
   onComplete: () => void;
@@ -16,15 +17,7 @@ const PaymentStep = ({ onComplete }: PaymentStepProps) => {
 
   // Check URL parameters on mount
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get('refresh') === 'true') {
-      refreshAccount();
-      
-      // Clean up the URL
-      const url = new URL(window.location.href);
-      url.searchParams.delete('refresh');
-      window.history.replaceState({}, '', url.toString());
-    }
+    handleStripeUrlParams(refreshAccount);
   }, [refreshAccount]);
 
   const handleComplete = async () => {
