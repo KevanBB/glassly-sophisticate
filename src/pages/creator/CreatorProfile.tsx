@@ -30,7 +30,12 @@ const CreatorProfile = () => {
   return (
     <div className="min-h-screen bg-background">
       <ProfileHeader profile={profile} />
-      <MediaGallery viewType={viewType} onViewChange={setViewType} />
+      <MediaGallery 
+        viewType={viewType} 
+        onViewChange={setViewType}
+        creatorId={profile.id}
+        username={username}
+      />
     </div>
   );
 };

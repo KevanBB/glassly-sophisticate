@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { Link } from 'react-router-dom';
 import GlassPanel from '@/components/ui/GlassPanel';
 import { Button } from '@/components/ui/button';
 import { FileText, BarChart, Users, Settings } from 'lucide-react';
@@ -9,9 +10,15 @@ const ContentQuickActions = () => {
     <GlassPanel className="p-6">
       <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
       <div className="grid grid-cols-2 gap-3">
-        <Button variant="outline" className="flex flex-col items-center p-4 h-auto">
-          <FileText className="h-6 w-6 mb-2" />
-          <span>New Post</span>
+        <Button 
+          variant="outline" 
+          className="flex flex-col items-center p-4 h-auto"
+          asChild
+        >
+          <Link to="/creator/create-post">
+            <FileText className="h-6 w-6 mb-2" />
+            <span>New Post</span>
+          </Link>
         </Button>
         <Button variant="outline" className="flex flex-col items-center p-4 h-auto">
           <BarChart className="h-6 w-6 mb-2" />

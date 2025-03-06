@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -12,6 +13,7 @@ import { CreatorApplicationForm } from './components/creator/CreatorApplicationF
 import CreatorOnboarding from './pages/creator/CreatorOnboarding';
 import CreatorDashboard from './pages/creator/CreatorDashboard';
 import CreatorProfile from './pages/creator/CreatorProfile';
+import CreatePost from './pages/creator/CreatePost';
 import MessagesPage from './pages/Messages';
 import CommunityPage from './pages/Community';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -67,6 +69,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreatorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/creator/create-post" 
+              element={
+                <ProtectedRoute>
+                  <CreatePost />
                 </ProtectedRoute>
               } 
             />

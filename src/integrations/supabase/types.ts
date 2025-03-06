@@ -268,6 +268,86 @@ export type Database = {
         }
         Relationships: []
       }
+      post_media: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          file_size: number
+          id: string
+          media_type: string
+          media_url: string
+          position: number
+          post_id: string
+          thumbnail_url: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          file_size: number
+          id?: string
+          media_type: string
+          media_url: string
+          position: number
+          post_id: string
+          thumbnail_url?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          file_size?: number
+          id?: string
+          media_type?: string
+          media_url?: string
+          position?: number
+          post_id?: string
+          thumbnail_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          creator_id: string
+          id: string
+          price: number | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+          visibility: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          creator_id: string
+          id?: string
+          price?: number | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          visibility?: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          creator_id?: string
+          id?: string
+          price?: number | null
+          tags?: string[] | null
+          title?: string | null
+          updated_at?: string | null
+          visibility?: string
+        }
+        Relationships: []
+      }
       privacy_settings: {
         Row: {
           bio_visibility: string | null
