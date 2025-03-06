@@ -1,6 +1,5 @@
 
 import React, { useState } from 'react';
-import MessageInput from './MessageInput';
 import SelfDestructControls from './SelfDestructControls';
 import VoiceRecordingButton from './VoiceRecordingButton';
 import FileUploadButton from './FileUploadButton';
@@ -9,6 +8,7 @@ import SendButton from './SendButton';
 import { useToast } from "@/components/ui/use-toast";
 import { sendTextMessage } from './utils/messageUtils';
 import type { Contact } from '@/types/messaging';
+import { useMessageThreadContext } from '@/context/MessageThreadContext';
 
 interface MessageComposerProps {
   user: any;
@@ -17,8 +17,7 @@ interface MessageComposerProps {
 
 const MessageComposer: React.FC<MessageComposerProps> = ({ user, contact }) => {
   const { toast } = useToast();
-  const [isSelfDestruct, setIsSelfDestruct] = useState(false);
-  const [destructTime, setDestructTime] = useState(5); // minutes
+  const { isSelfDestruct, setIsSelfDestruct, destructTime, setDestructTime } = useMessageThreadContext();
   const [newMessage, setNewMessage] = useState('');
   const [isSending, setIsSending] = useState(false);
   

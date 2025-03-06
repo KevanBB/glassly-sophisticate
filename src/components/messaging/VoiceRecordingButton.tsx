@@ -40,7 +40,13 @@ const VoiceRecordingButton: React.FC<VoiceRecordingButtonProps> = ({
         const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
         
         try {
-          await uploadMediaMessage(audioBlob, user, contact, isSelfDestruct, destructTime);
+          // Convert Blob to File
+          const audioFile = new File([audioBlob], `voice-message-${Date.now()}.webm`, { 
+            type: 'audio/webm',
+            lastModified: Date.now()
+          });
+          
+          await uploadMediaMessage(audioFile, user, contact, isSelfDestruct, destructTime);
           
           toast({
             title: "Voice message sent",
