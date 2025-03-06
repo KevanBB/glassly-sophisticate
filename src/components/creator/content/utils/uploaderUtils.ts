@@ -24,9 +24,9 @@ export const updateFileStatus = (
   fileName: string, 
   status: 'pending' | 'uploading' | 'processing' | 'complete' | 'error', 
   progress: number, 
-  error?: string,
   setMediaFiles: React.Dispatch<React.SetStateAction<FileWithMetadata[]>>,
-  setUploadProgress: React.Dispatch<React.SetStateAction<UploadProgress>>
+  setUploadProgress: React.Dispatch<React.SetStateAction<UploadProgress>>,
+  error?: string
 ) => {
   setMediaFiles(prev => prev.map(file => {
     if (file.name === fileName) {
