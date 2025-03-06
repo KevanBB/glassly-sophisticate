@@ -29,24 +29,35 @@ const CreatorOnboarding = () => {
     const checkCreatorStatus = async () => {
       if (!user) return;
 
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('is_creator, creator_onboarding_complete')
-        .eq('id', user.id)
-        .single();
+      try {
+        const { data: profile, error } = await supabase
+          .from('profiles')
+          .select('is_creator, creator_onboarding_complete')
+          .eq('id', user.id)
+          .single();
+          
+        if (error) {
+          console.error('Error fetching profile:', error);
+          setLoading(false);
+          return;
+        }
 
-      if (!profile?.is_creator) {
-        navigate('/dashboard');
-        return;
+        if (!profile?.is_creator) {
+          navigate('/dashboard');
+          return;
+        }
+
+        if (profile.creator_onboarding_complete) {
+          navigate('/creator/dashboard');
+          return;
+        }
+
+        setIsCreator(true);
+        setLoading(false);
+      } catch (error) {
+        console.error('Error checking creator status:', error);
+        setLoading(false);
       }
-
-      if (profile.creator_onboarding_complete) {
-        navigate('/creator/dashboard');
-        return;
-      }
-
-      setIsCreator(true);
-      setLoading(false);
     };
 
     checkCreatorStatus();
@@ -58,13 +69,22 @@ const CreatorOnboarding = () => {
       return;
     }
 
-    const { data } = await supabase
-      .from('profiles')
-      .select('creator_username')
-      .eq('creator_username', value)
-      .maybeSingle();
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('creator_username')
+        .eq('creator_username', value)
+        .maybeSingle();
+        
+      if (error) {
+        console.error('Error checking username:', error);
+        return;
+      }
 
-    setIsUsernameAvailable(!data);
+      setIsUsernameAvailable(!data);
+    } catch (error) {
+      console.error('Error checking username:', error);
+    }
   };
 
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,6 +97,7 @@ const CreatorOnboarding = () => {
     if (!user) return;
 
     try {
+      // Insert into creator_onboarding table
       const { error: onboardingError } = await supabase
         .from('creator_onboarding')
         .insert({
@@ -89,6 +110,7 @@ const CreatorOnboarding = () => {
 
       if (onboardingError) throw onboardingError;
 
+      // Update profile with username and onboarding completion
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
@@ -107,7 +129,15 @@ const CreatorOnboarding = () => {
     }
   };
 
-  if (loading || !isCreator) {
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  if (!isCreator) {
     return null;
   }
 
@@ -187,8 +217,7 @@ const CreatorOnboarding = () => {
                 <div className="bg-white/5 p-4 rounded-lg border border-white/10 max-h-60 overflow-y-auto">
                   <h3 className="font-semibold text-white mb-2">Terms of Service</h3>
                   <div className="text-sm text-white/80">
-                    {/* Add your terms of service content here */}
-                    <p>Terms of Service content goes here...</p>
+                    <p>By accepting these Terms of Service, you agree to comply with the platform guidelines, content standards, and payment terms. Your content must not violate any laws or infringe on third-party rights. The platform reserves the right to remove content that violates these terms. You retain ownership of your content but grant the platform a license to use, display, and distribute it. Payment processing is subject to Stripe's terms and conditions.</p>
                   </div>
                 </div>
 
