@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Lock, Plus } from 'lucide-react';
 import { useToast } from "@/components/ui/use-toast";
+import { useLocation } from 'react-router-dom';
 import ChatList from '@/components/messaging/ChatList';
 import MessageThread from '@/components/messaging/MessageThread';
 import NewMessageModal from '@/components/messaging/NewMessageModal';
@@ -14,10 +14,20 @@ import type { Contact, Message } from '@/types/messaging';
 const MessagesPage = () => {
   const { user } = useAuth();
   const { toast } = useToast();
+  const location = useLocation();
   const [activeChat, setActiveChat] = useState<Contact | null>(null);
   const [isNewMessageModalOpen, setIsNewMessageModalOpen] = useState(false);
   const [conversations, setConversations] = useState<Contact[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const state = location.state as { startConversation?: boolean, contact?: Contact } | null;
+    if (state?.startConversation && state?.contact) {
+      console.log('Starting conversation with:', state.contact);
+      setActiveChat(state.contact);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location]);
 
   useEffect(() => {
     if (!user) return;
@@ -25,7 +35,6 @@ const MessagesPage = () => {
     const fetchConversations = async () => {
       setIsLoading(true);
       try {
-        // Get all contacts
         const { data: contactsData, error: contactsError } = await supabase
           .from('contacts')
           .select('contact_id')
@@ -41,7 +50,6 @@ const MessagesPage = () => {
 
         const contactIds = contactsData.map(contact => contact.contact_id);
         
-        // Get profiles for all contacts
         const { data: profilesData, error: profilesError } = await supabase
           .from('profiles')
           .select('*')
@@ -49,7 +57,6 @@ const MessagesPage = () => {
 
         if (profilesError) throw profilesError;
 
-        // Convert to Contact objects
         const contacts: Contact[] = profilesData.map(profile => ({
           id: profile.id,
           first_name: profile.first_name,
@@ -57,7 +64,6 @@ const MessagesPage = () => {
           avatar_url: profile.avatar_url,
         }));
 
-        // For each contact, get the last message and unread count
         const contactsWithLastMessage = await Promise.all(contacts.map(async (contact) => {
           const { data: messagesData, error: messagesError } = await supabase
             .from('messages')
@@ -68,7 +74,6 @@ const MessagesPage = () => {
 
           if (messagesError) throw messagesError;
           
-          // Count unread messages
           const { count: unreadCount, error: countError } = await supabase
             .from('messages')
             .select('*', { count: 'exact', head: true })
@@ -78,7 +83,6 @@ const MessagesPage = () => {
             
           if (countError) throw countError;
 
-          // Map the database message to our Message type if it exists
           let lastMessage: Message | undefined;
           if (messagesData && messagesData.length > 0) {
             const dbMsg = messagesData[0];
@@ -121,7 +125,6 @@ const MessagesPage = () => {
 
     fetchConversations();
 
-    // Set up real-time subscription for new messages
     const messagesSubscription = supabase
       .channel('messages-channel')
       .on('postgres_changes', { 
@@ -130,7 +133,6 @@ const MessagesPage = () => {
         table: 'messages',
         filter: `or(sender_id=eq.${user.id},receiver_id=eq.${user.id})` 
       }, (payload) => {
-        // Update conversations when a new message is received
         fetchConversations();
       })
       .subscribe();
@@ -141,6 +143,7 @@ const MessagesPage = () => {
   }, [user, toast]);
 
   const handleStartNewChat = (contact: Contact) => {
+    console.log('Starting chat with contact:', contact);
     setActiveChat(contact);
     setIsNewMessageModalOpen(false);
   };
@@ -152,9 +155,7 @@ const MessagesPage = () => {
       exit={{ opacity: 0 }}
       className="h-screen flex flex-col overflow-hidden bg-gradient-to-br from-dark-200 to-dark"
     >
-      {/* Messaging interface with glass morphism */}
       <div className="flex flex-1 overflow-hidden">
-        {/* Sidebar with conversations */}
         <div className="w-1/4 border-r border-white/10 backdrop-blur-md bg-white/5 overflow-hidden flex flex-col">
           <div className="p-4 border-b border-white/10">
             <h2 className="text-lg font-medium text-white">Messages</h2>
@@ -179,7 +180,6 @@ const MessagesPage = () => {
           </div>
         </div>
         
-        {/* Main message area */}
         <div className="flex-1 flex flex-col">
           {activeChat ? (
             <MessageThread contact={activeChat} />
@@ -204,7 +204,6 @@ const MessagesPage = () => {
         </div>
       </div>
 
-      {/* New message modal */}
       {isNewMessageModalOpen && (
         <NewMessageModal
           isOpen={isNewMessageModalOpen}
@@ -213,7 +212,6 @@ const MessagesPage = () => {
         />
       )}
 
-      {/* Bottom Navigation */}
       <BottomNavigation />
     </motion.div>
   );

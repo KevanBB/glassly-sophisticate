@@ -63,16 +63,20 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ isOpen, onClose, onSe
     
     setIsSearching(true);
     try {
-      // Search for users by first_name or last_name
+      // Debug the search query
+      console.log('Searching for:', searchQuery);
+
+      // Update the query to use ilike for partial matches and make it more flexible
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
-        .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%`)
+        .select('id, first_name, last_name, avatar_url, updated_at')
+        .or(`first_name.ilike.%${searchQuery}%,last_name.ilike.%${searchQuery}%,display_name.ilike.%${searchQuery}%`)
         .neq('id', user.id)
         .limit(10);
         
       if (error) throw error;
       
+      console.log('Search results:', data);
       setSearchResults(data || []);
     } catch (error) {
       console.error('Error searching for users:', error);
@@ -85,6 +89,19 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ isOpen, onClose, onSe
       setIsSearching(false);
     }
   };
+  
+  // Add automatic search when query changes
+  useEffect(() => {
+    if (searchQuery.trim().length >= 2) {
+      const timer = setTimeout(() => {
+        handleSearch();
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    } else if (searchQuery === '') {
+      setSearchResults([]);
+    }
+  }, [searchQuery]);
   
   const handleAddContact = async (profile: DBProfile) => {
     if (!user) return;
@@ -127,7 +144,7 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ isOpen, onClose, onSe
       
       toast({
         title: "Contact added",
-        description: `${profile.first_name} ${profile.last_name} has been added to your contacts.`,
+        description: `${profile.first_name || ''} ${profile.last_name || ''} has been added to your contacts.`,
         variant: "default"
       });
       
@@ -202,7 +219,7 @@ const NewMessageModal: React.FC<NewMessageModalProps> = ({ isOpen, onClose, onSe
                     </div>
                     <div>
                       <p className="text-white font-medium">
-                        {profile.first_name} {profile.last_name}
+                        {profile.first_name || ''} {profile.last_name || ''}
                       </p>
                     </div>
                   </div>
