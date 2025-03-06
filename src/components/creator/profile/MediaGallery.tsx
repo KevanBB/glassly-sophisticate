@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ViewType, Post, Media, MediaType } from './types';
+import { ViewType, Post, Media, MediaType, PostVisibility } from './types';
 import { Button } from '@/components/ui/button';
 import { Grid2X2, List, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
