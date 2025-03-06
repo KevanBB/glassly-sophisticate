@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Check } from 'lucide-react';
 import StripeOnboarding from '@/components/payments/StripeOnboarding';
@@ -11,8 +11,21 @@ interface PaymentStepProps {
 }
 
 const PaymentStep = ({ onComplete }: PaymentStepProps) => {
-  const { isOnboarded, hasStripeAccount, loading } = useStripeConnectContext();
+  const { isOnboarded, hasStripeAccount, loading, refreshAccount } = useStripeConnectContext();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Check URL parameters on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('refresh') === 'true') {
+      refreshAccount();
+      
+      // Clean up the URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('refresh');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [refreshAccount]);
 
   const handleComplete = async () => {
     // If stripe account exists but not onboarded, show a warning

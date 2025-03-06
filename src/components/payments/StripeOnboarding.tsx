@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useStripeConnectContext } from './StripeConnectProvider';
 import { useStripeConnect } from '@/hooks/useStripeConnect';
@@ -43,19 +42,24 @@ export function StripeOnboarding() {
       // Use full URL for return path to ensure proper redirection
       const currentUrl = window.location.href;
       const baseUrl = window.location.origin;
-      const returnUrl = currentUrl.includes('/onboarding') 
-        ? currentUrl 
-        : `${baseUrl}/creator/onboarding?step=4`;
       
+      // If we're in the onboarding process, use the current URL as the return URL
+      // Otherwise, redirect to the onboarding step 4
+      const returnUrl = currentUrl.includes('/onboarding') 
+        ? `${baseUrl}/creator/onboarding?step=4&refresh=true` 
+        : `${baseUrl}/creator/dashboard?refresh=true`;
+      
+      console.log('Generating onboarding link with returnUrl:', returnUrl);
       const onboardingUrl = await getOnboardingLink(returnUrl);
       
-      if (onboardingUrl) {
-        // Store current path in sessionStorage for return reference
-        sessionStorage.setItem('stripeReturnPath', window.location.pathname);
-        window.location.href = onboardingUrl;
-      } else {
+      if (!onboardingUrl) {
         throw new Error('Failed to generate onboarding link');
       }
+      
+      // Store current path in sessionStorage for return reference
+      sessionStorage.setItem('stripeReturnPath', window.location.pathname);
+      console.log('Redirecting to Stripe onboarding URL:', onboardingUrl);
+      window.location.href = onboardingUrl;
     } catch (error) {
       console.error('Error redirecting to Stripe:', error);
       toast.error('Failed to redirect to Stripe');

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import { Button } from '@/components/ui/button';
 import { RefreshCw, ExternalLink } from 'lucide-react';
@@ -12,6 +12,19 @@ const StripeStatusPanel = () => {
   const navigate = useNavigate();
   const [isRedirecting, setIsRedirecting] = useState(false);
   
+  // Check URL parameters on mount
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('refresh') === 'true') {
+      refreshAccount();
+      
+      // Clean up the URL
+      const url = new URL(window.location.href);
+      url.searchParams.delete('refresh');
+      window.history.replaceState({}, '', url.toString());
+    }
+  }, [refreshAccount]);
+  
   const handleCompleteSetup = async () => {
     if (!hasStripeAccount) {
       navigate('/creator/onboarding?step=4');
@@ -22,14 +35,17 @@ const StripeStatusPanel = () => {
     setIsRedirecting(true);
     try {
       const returnUrl = `${window.location.origin}/creator/dashboard?refresh=true`;
+      console.log('Generating onboarding link with returnUrl:', returnUrl);
       const onboardingUrl = await getOnboardingLink(returnUrl);
       
-      if (onboardingUrl) {
-        sessionStorage.setItem('stripeReturnPath', '/creator/dashboard');
-        window.location.href = onboardingUrl;
-      } else {
+      if (!onboardingUrl) {
         throw new Error('Failed to generate onboarding link');
       }
+      
+      // Store current path in sessionStorage for return reference
+      sessionStorage.setItem('stripeReturnPath', '/creator/dashboard');
+      console.log('Redirecting to Stripe onboarding URL:', onboardingUrl);
+      window.location.href = onboardingUrl;
     } catch (error) {
       console.error('Error redirecting to Stripe onboarding:', error);
       toast.error('Failed to redirect to Stripe');
