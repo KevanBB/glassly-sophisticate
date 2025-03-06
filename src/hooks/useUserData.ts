@@ -85,7 +85,8 @@ export function useUsersData(searchQuery: string, filters: Filters, pagination =
                 ? { 
                     ...user, 
                     is_active: payload.new.is_active, 
-                    last_active: payload.new.last_active 
+                    last_active: payload.new.last_active,
+                    role: payload.new.role // Include role updates
                   } 
                 : user
             )

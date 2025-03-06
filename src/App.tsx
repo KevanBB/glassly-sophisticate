@@ -14,6 +14,7 @@ import CommunityPage from "./pages/Community";
 import MembersPage from "./pages/Members";
 import UserProfilePage from "./pages/UserProfile";
 import NotificationsPage from "./pages/Notifications";
+import AdminDashboard from "./pages/Admin";
 import { motion, AnimatePresence } from 'framer-motion';
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
@@ -66,6 +67,11 @@ const App = () => (
               <Route path="/notifications" element={
                 <ProtectedRoute>
                   <NotificationsPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/admin" element={
+                <ProtectedRoute>
+                  <AdminDashboard />
                 </ProtectedRoute>
               } />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}

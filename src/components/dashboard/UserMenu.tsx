@@ -1,11 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { User, Settings, CreditCard, LogOut } from 'lucide-react';
+import { User, Settings, CreditCard, LogOut, Shield } from 'lucide-react';
 import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UserMenuProps {
   profile: any;
@@ -16,6 +17,13 @@ const UserMenu = ({ profile, user }: UserMenuProps) => {
   const { signOut } = useAuth();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (profile) {
+      setIsAdmin(profile.role === 'admin');
+    }
+  }, [profile]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -49,6 +57,11 @@ const UserMenu = ({ profile, user }: UserMenuProps) => {
           <div className="px-4 py-3 border-b border-white/10">
             <p className="text-sm font-medium text-white">{profile?.first_name} {profile?.last_name}</p>
             <p className="text-xs text-white/60">{user?.email}</p>
+            {isAdmin && (
+              <span className="inline-block mt-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">
+                Admin
+              </span>
+            )}
           </div>
           <div className="py-1">
             <button 
@@ -72,6 +85,15 @@ const UserMenu = ({ profile, user }: UserMenuProps) => {
               <CreditCard size={16} className="mr-2" />
               Subscription
             </button>
+            {isAdmin && (
+              <button 
+                onClick={() => navigateTo('/admin')} 
+                className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-primary/20 rounded-md transition-colors"
+              >
+                <Shield size={16} className="mr-2" />
+                Admin Dashboard
+              </button>
+            )}
           </div>
           <div className="py-1 border-t border-white/10">
             <button 
