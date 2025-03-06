@@ -108,7 +108,8 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
       } else if (filters.sort === 'za') {
         query = query.order('display_name', { ascending: false });
       } else if (filters.joinDate === 'oldest') {
-        query = query.order('created_at', { ascending: true });
+        // Change from created_at to joined_at
+        query = query.order('joined_at', { ascending: true });
       }
       
       const { data, error } = await query;
@@ -127,7 +128,7 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
         avatar_url: user.avatar_url,
         role: user.role,
         last_active: user.last_active || user.updated_at,
-        joined_at: user.joined_at || user.created_at,
+        joined_at: user.joined_at || user.updated_at, // Fallback to updated_at instead of created_at
         is_active: user.is_active || false
       }));
       
