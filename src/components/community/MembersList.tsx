@@ -5,7 +5,7 @@ import MemberListItem from './MemberListItem';
 import MemberListSkeleton from './MemberListSkeleton';
 import EmptyUserState from './EmptyUserState';
 import GlassPanel from '@/components/ui/GlassPanel';
-import { useUserData } from '@/hooks/useUserData';
+import { useUsersData } from '@/hooks/useUserData';
 
 interface MembersListProps {
   searchQuery: string;
@@ -18,7 +18,7 @@ interface MembersListProps {
 }
 
 const MembersList = ({ searchQuery, filters }: MembersListProps) => {
-  const { users, loading, fetchUsers, loadMore, hasMore } = useUserData(
+  const { users, loading, fetchUsers, loadMore, hasMore } = useUsersData(
     searchQuery, 
     filters, 
     true // Enable pagination

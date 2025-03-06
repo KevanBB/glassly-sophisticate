@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Users } from 'lucide-react';
 import GlassPanel from '@/components/ui/GlassPanel';
 import UserGrid from './UserGrid';
-import { useUserData } from '@/hooks/useUserData';
+import { useUsersData } from '@/hooks/useUserData';
 
 interface CommunityActiveUsersProps {
   searchQuery: string;
@@ -18,7 +18,7 @@ interface CommunityActiveUsersProps {
 }
 
 const CommunityActiveUsers = ({ searchQuery, filters }: CommunityActiveUsersProps) => {
-  const { users, loading, fetchUsers } = useUserData(searchQuery, filters);
+  const { users, loading, fetchUsers } = useUsersData(searchQuery, filters);
 
   return (
     <div className="w-full max-w-6xl z-10 space-y-4 mb-6">
