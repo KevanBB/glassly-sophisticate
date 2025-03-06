@@ -1,4 +1,3 @@
-
 import React, { useRef, useState, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -34,8 +33,11 @@ const NewMediaUploader = ({
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Prevent form submission when a file is selected
+    // Prevent default behavior to avoid form submission
     e.preventDefault();
+    e.stopPropagation();
+    
+    console.log("File selected, preventing form submission");
     
     if (!e.target.files) return;
     
@@ -157,10 +159,14 @@ const NewMediaUploader = ({
         <Label className="text-lg font-semibold text-white">Media</Label>
         <div className="flex gap-2">
           <Button 
-            type="button"
+            type="button" // Explicitly set type to button to prevent form submission
             onClick={(e) => {
               e.preventDefault(); // Prevent form submission when clicking "Add Media"
-              fileInputRef.current?.click();
+              e.stopPropagation(); // Extra safety to stop event propagation
+              console.log("Add Media button clicked, opening file selector");
+              if (fileInputRef.current) {
+                fileInputRef.current.click();
+              }
             }}
             disabled={mediaFiles.length >= 10 || isSubmitting}
             variant="outline"
@@ -227,11 +233,13 @@ const NewMediaUploader = ({
             </div>
             <div className="flex gap-2">
               <Button
-                type="button"
+                type="button" // Explicitly set type to button
                 variant="ghost"
                 size="sm"
                 className="text-xs text-white/60 hover:text-white"
-                onClick={() => {
+                onClick={(e) => {
+                  e.preventDefault(); // Prevent form submission
+                  e.stopPropagation();
                   // Clear all files
                   mediaFiles.forEach(file => {
                     if (file.preview) {

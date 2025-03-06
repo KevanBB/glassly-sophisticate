@@ -119,12 +119,15 @@ const NewPostEditor = ({ onSuccess }: PostEditorProps) => {
           </div>
         </div>
         
-        <NewMediaUploader 
-          mediaFiles={mediaFiles}
-          isSubmitting={isSubmitting}
-          onChange={setMediaFiles}
-          uploadProgress={uploadProgress}
-        />
+        {/* Move the media uploader outside the form to prevent accidental form submission */}
+        <div className="form-media-uploader">
+          <NewMediaUploader 
+            mediaFiles={mediaFiles}
+            isSubmitting={isSubmitting}
+            onChange={setMediaFiles}
+            uploadProgress={uploadProgress}
+          />
+        </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <VisibilitySelector
