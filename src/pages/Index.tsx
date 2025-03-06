@@ -38,7 +38,8 @@ const Index = () => {
                   type="video/mp4" />
           Your browser does not support the video tag.
         </video>
-        <div className="absolute inset-0 bg-dark/70 backdrop-blur-sm"></div>
+        {/* Reduced blur overlay */}
+        <div className="absolute inset-0 bg-dark/50 backdrop-blur-[2px]"></div>
       </div>
 
       {/* Subtle overlay texture */}
@@ -56,11 +57,11 @@ const Index = () => {
             <span className="w-2 h-2 rounded-full bg-crimson mr-2 animate-pulse-subtle"></span>
             Premium Platform
           </div>
-          <h1 className="text-5xl md:text-7xl font-bold text-white leading-tight tracking-tight">
-            Welcome to <span className="text-crimson">SubSpace</span>
+          <h1 className="text-6xl md:text-8xl font-bold text-white leading-tight tracking-tighter uppercase">
+            <span className="text-crimson" style={{ textShadow: "0 0 10px rgba(220, 20, 60, 0.3)" }}>SubSpace</span>
           </h1>
-          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mt-6">
-            A premium, secure, and discreet platform for sophisticated users
+          <p className="text-lg md:text-xl text-white/70 max-w-2xl mx-auto mt-6 font-light tracking-wide">
+            Engineered for Dominance
           </p>
         </motion.div>
         
