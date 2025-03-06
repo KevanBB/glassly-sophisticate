@@ -15,12 +15,67 @@ import GlassPanel from '@/components/ui/GlassPanel';
 import { Shield, Lock, User, Activity, MessageSquare, Settings, Award, PenSquare } from 'lucide-react';
 import BadgesDisplay from '@/components/profile/BadgesDisplay';
 import PrivateNotes from '@/components/profile/PrivateNotes';
+import { supabase } from '@/integrations/supabase/client';
 
 const ProfilePage = () => {
   const { user } = useAuth();
   const profile = useUserProfile(user);
   const [currentTab, setCurrentTab] = useState("about");
   const [isEditing, setIsEditing] = useState(false);
+
+  // User activity tracking - update on page load and tab changes
+  useEffect(() => {
+    if (!user) return;
+
+    // Update user's activity status
+    const updateActivity = async () => {
+      try {
+        const now = new Date().toISOString();
+        await supabase
+          .from('profiles')
+          .update({ 
+            last_active: now,
+            is_active: true 
+          })
+          .eq('id', user.id);
+      } catch (error) {
+        console.error('Error updating activity status:', error);
+      }
+    };
+
+    // Update activity on page load
+    updateActivity();
+
+    // Set up periodic activity updates
+    const activityInterval = setInterval(updateActivity, 60000); // Every minute
+
+    // Cleanup function
+    return () => {
+      clearInterval(activityInterval);
+    };
+  }, [user]);
+
+  // Update activity when tab changes
+  useEffect(() => {
+    if (!user) return;
+    
+    const updateActivity = async () => {
+      try {
+        const now = new Date().toISOString();
+        await supabase
+          .from('profiles')
+          .update({ 
+            last_active: now,
+            is_active: true 
+          })
+          .eq('id', user.id);
+      } catch (error) {
+        console.error('Error updating activity status:', error);
+      }
+    };
+    
+    updateActivity();
+  }, [currentTab, user]);
 
   const toggleEditMode = () => {
     setIsEditing(!isEditing);

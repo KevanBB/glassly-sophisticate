@@ -27,18 +27,26 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
   const perPage = pagination ? 20 : 100; // Limit to 20 for pagination, more for grid view
+  const [cacheTime, setCacheTime] = useState<Date | null>(null);
+  const [cachedUsers, setCachedUsers] = useState<User[]>([]);
+  const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
 
-  // Setup real-time subscription
+  // Setup real-time subscription for user status changes
   useEffect(() => {
     const channel = supabase
       .channel('public:profiles')
       .on('postgres_changes', 
         { event: 'UPDATE', schema: 'public', table: 'profiles' }, 
         payload => {
+          // Update the user in the users array when their status changes
           setUsers(prevUsers => 
             prevUsers.map(user => 
               user.id === payload.new.id 
-                ? { ...user, ...(payload.new as any) } 
+                ? { 
+                    ...user, 
+                    is_active: payload.new.is_active, 
+                    last_active: payload.new.last_active 
+                  } 
                 : user
             )
           );
@@ -46,6 +54,7 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
       )
       .subscribe();
 
+    // Cleanup function
     return () => {
       supabase.removeChannel(channel);
     };
@@ -57,7 +66,18 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
       setPage(1);
       setHasMore(true);
     }
-    fetchUsers(1);
+    
+    // Check if we have a valid cache before fetching
+    const now = new Date();
+    if (cacheTime && cachedUsers.length > 0 && now.getTime() - cacheTime.getTime() < CACHE_DURATION) {
+      // Use cached data
+      console.log('Using cached user data');
+      setUsers(cachedUsers);
+      setLoading(false);
+    } else {
+      // Cache expired or doesn't exist, fetch new data
+      fetchUsers(1);
+    }
   }, [filters, searchQuery, pagination]);
 
   const fetchUsers = async (pageNumber = 1) => {
@@ -67,9 +87,9 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
     
     setLoading(true);
     try {
-      // Calculate the timestamp for 30 minutes ago
-      const thirtyMinutesAgo = new Date();
-      thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
+      // Calculate the timestamp for 5 minutes ago for "online" status
+      const fiveMinutesAgo = new Date();
+      fiveMinutesAgo.setMinutes(fiveMinutesAgo.getMinutes() - 5);
       
       // Calculate offset for pagination
       const offset = pagination ? (pageNumber - 1) * perPage : 0;
@@ -89,10 +109,10 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
       }
       
       // Apply activity status filter
-      if (filters.activityStatus === 'active') {
+      if (filters.activityStatus === 'online') {
+        query = query.gte('last_active', fiveMinutesAgo.toISOString());
+      } else if (filters.activityStatus === 'active') {
         query = query.eq('is_active', true);
-      } else if (filters.activityStatus === 'recent') {
-        query = query.gte('last_active', thirtyMinutesAgo.toISOString());
       }
       
       // Apply role filter
@@ -101,14 +121,16 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
       }
       
       // Apply sorting
-      if (filters.sort === 'recent' || filters.joinDate === 'newest') {
+      if (filters.sort === 'recent') {
         query = query.order('last_active', { ascending: false });
       } else if (filters.sort === 'az') {
         query = query.order('display_name', { ascending: true });
       } else if (filters.sort === 'za') {
         query = query.order('display_name', { ascending: false });
+      } else if (filters.joinDate === 'newest') {
+        query = query.order('joined_at', { ascending: false });
       } else if (filters.joinDate === 'oldest') {
-        // Change from created_at to joined_at
+        // Use joined_at instead of created_at
         query = query.order('joined_at', { ascending: true });
       }
       
@@ -128,13 +150,16 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
         avatar_url: user.avatar_url,
         role: user.role,
         last_active: user.last_active || user.updated_at,
-        joined_at: user.joined_at || user.updated_at, // Fallback to updated_at instead of created_at
-        is_active: user.is_active || false
+        joined_at: user.joined_at || user.updated_at, // Fallback to updated_at
+        is_active: isUserActive(user.last_active, fiveMinutesAgo.toISOString())
       }));
       
       if (pagination) {
         if (pageNumber === 1) {
           setUsers(processedUsers);
+          // Update cache for first page results
+          setCachedUsers(processedUsers);
+          setCacheTime(new Date());
         } else {
           setUsers(prev => [...prev, ...processedUsers]);
         }
@@ -143,11 +168,29 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
         setHasMore(processedUsers.length === perPage);
       } else {
         setUsers(processedUsers);
+        // Update cache
+        setCachedUsers(processedUsers);
+        setCacheTime(new Date());
       }
     } catch (error) {
       console.error('Error in fetchUsers:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Helper function to determine if a user is active based on last_active timestamp
+  const isUserActive = (lastActive: string | null, fiveMinutesAgo: string): boolean => {
+    if (!lastActive) return false;
+    
+    try {
+      const lastActiveDate = new Date(lastActive);
+      const thresholdDate = new Date(fiveMinutesAgo);
+      
+      return lastActiveDate >= thresholdDate;
+    } catch (error) {
+      console.error('Error parsing date:', error);
+      return false;
     }
   };
 
@@ -159,5 +202,27 @@ export function useUserData(searchQuery: string, filters: Filters, pagination = 
     fetchUsers(nextPage);
   };
 
-  return { users, loading, fetchUsers, loadMore, hasMore, page };
+  // Function to update user activity (to be called from components)
+  const updateUserActivity = async (userId: string) => {
+    if (!userId) return;
+    
+    try {
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from('profiles')
+        .update({ 
+          last_active: now,
+          is_active: true 
+        })
+        .eq('id', userId);
+      
+      if (error) {
+        console.error('Error updating user activity:', error);
+      }
+    } catch (error) {
+      console.error('Error in updateUserActivity:', error);
+    }
+  };
+
+  return { users, loading, fetchUsers, loadMore, hasMore, page, updateUserActivity };
 }

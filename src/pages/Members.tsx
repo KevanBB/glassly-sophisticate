@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import BottomNavigation from '@/components/dashboard/BottomNavigation';
 import CommunitySearch from '@/components/community/CommunitySearch';
@@ -7,8 +7,11 @@ import MembersList from '@/components/community/MembersList';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Link } from 'react-router-dom';
+import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const MembersPage = () => {
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilters, setActiveFilters] = useState({
     activityStatus: 'all',
@@ -16,6 +19,38 @@ const MembersPage = () => {
     role: 'all',
     sort: 'recent'
   });
+
+  // User activity tracking - update on page load and at intervals
+  useEffect(() => {
+    if (!user) return;
+
+    // Update user's activity status when they visit the members page
+    const updateActivity = async () => {
+      try {
+        const now = new Date().toISOString();
+        await supabase
+          .from('profiles')
+          .update({ 
+            last_active: now,
+            is_active: true 
+          })
+          .eq('id', user.id);
+      } catch (error) {
+        console.error('Error updating activity status:', error);
+      }
+    };
+
+    // Update activity on page load
+    updateActivity();
+
+    // Set up periodic activity updates
+    const activityInterval = setInterval(updateActivity, 60000); // Every minute
+
+    // Cleanup function
+    return () => {
+      clearInterval(activityInterval);
+    };
+  }, [user]);
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);

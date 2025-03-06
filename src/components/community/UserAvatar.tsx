@@ -71,7 +71,7 @@ const UserAvatar = ({
       
       {showActiveIndicator && user.is_active && (
         <span className={cn(
-          "absolute block rounded-full bg-green-500 ring-2 ring-background",
+          "absolute block rounded-full bg-green-500 ring-2 ring-background transition-opacity duration-300",
           indicatorSize[size],
           indicatorPosition[size]
         )} />

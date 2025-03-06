@@ -47,6 +47,16 @@ export function useUserProfile(user: any) {
     const fetchProfile = async () => {
       if (user) {
         try {
+          // Update the user's activity status when they load their profile
+          const now = new Date().toISOString();
+          await supabase
+            .from('profiles')
+            .update({ 
+              last_active: now,
+              is_active: true 
+            })
+            .eq('id', user.id);
+            
           // Fetch profile data
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
@@ -124,6 +134,13 @@ export function useUserProfile(user: any) {
     };
     
     fetchProfile();
+    
+    // Set up a periodic refresh of the profile data to ensure we have the latest activity status
+    const refreshInterval = setInterval(fetchProfile, 60000); // Refresh every minute
+    
+    return () => {
+      clearInterval(refreshInterval);
+    };
   }, [user]);
 
   return profile;
