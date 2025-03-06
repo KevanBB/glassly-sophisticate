@@ -20,7 +20,14 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
   const { user } = useAuth();
   const [caption, setCaption] = useState('');
   const [title, setTitle] = useState('');
-  const [mediaFiles, setMediaFiles] = useState<(File & { preview?: string; caption?: string; position: number })[]>([]);
+  const [mediaFiles, setMediaFiles] = useState<(File & { 
+    preview?: string; 
+    caption?: string; 
+    position: number;
+    progress?: number;
+    status?: 'pending' | 'uploading' | 'processing' | 'complete' | 'error';
+    error?: string;
+  })[]>([]);
   const [uploadProgress, setUploadProgress] = useState<{ [key: string]: number }>({});
   const [visibility, setVisibility] = useState<PostVisibility>('free');
   const [price, setPrice] = useState<number | undefined>(undefined);
@@ -51,11 +58,20 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
       return {
         ...file,
         preview: isImage ? URL.createObjectURL(file) : undefined,
-        position: mediaFiles.length + index
+        position: mediaFiles.length + index,
+        progress: 0,
+        status: 'pending' as const
       };
     });
     
     setMediaFiles([...mediaFiles, ...newFiles]);
+    
+    // Initialize progress for new files
+    const newProgress = { ...uploadProgress };
+    newFiles.forEach(file => {
+      newProgress[file.name] = 0;
+    });
+    setUploadProgress(newProgress);
     
     // Reset file input
     if (fileInputRef.current) {
@@ -71,6 +87,7 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
       URL.revokeObjectURL(newFiles[index].preview!);
     }
     
+    const removedFile = newFiles[index];
     newFiles.splice(index, 1);
     
     // Update positions after removal
@@ -80,6 +97,11 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
     }));
     
     setMediaFiles(reorderedFiles);
+    
+    // Remove from progress tracking
+    const newProgress = { ...uploadProgress };
+    delete newProgress[removedFile.name];
+    setUploadProgress(newProgress);
   };
   
   const moveFile = (index: number, direction: 'up' | 'down') => {
@@ -113,6 +135,25 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
     if (file.type.startsWith('image/')) return 'image';
     if (file.type.startsWith('video/')) return 'video';
     return 'audio';
+  };
+
+  const updateFileStatus = (fileName: string, status: 'pending' | 'uploading' | 'processing' | 'complete' | 'error', progress: number, error?: string) => {
+    setMediaFiles(prev => prev.map(file => {
+      if (file.name === fileName) {
+        return {
+          ...file,
+          status,
+          progress,
+          error
+        };
+      }
+      return file;
+    }));
+    
+    setUploadProgress(prev => ({
+      ...prev,
+      [fileName]: progress
+    }));
   };
   
   const handleSubmit = async (e: React.FormEvent) => {
@@ -152,11 +193,8 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
         const fileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
         const filePath = `${user.id}/${postData.id}/${fileName}`;
         
-        // Update progress before starting upload (show as started)
-        setUploadProgress(prev => ({
-          ...prev,
-          [fileName]: 1
-        }));
+        // Update status to uploading
+        updateFileStatus(file.name, 'uploading', 1);
         
         // Create a storage bucket if it doesn't exist (first-time setup)
         // This would normally be done via SQL migration
@@ -177,21 +215,25 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
           // Continue anyway, it might already exist
         }
         
-        // Upload file
+        // Upload file with progress tracking
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('creator_media')
           .upload(filePath, file, {
             cacheControl: '3600',
-            upsert: false
+            upsert: false,
+            onUploadProgress: (progress) => {
+              const percent = Math.round((progress.loaded / progress.total) * 70);
+              updateFileStatus(file.name, 'uploading', percent);
+            }
           });
         
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          updateFileStatus(file.name, 'error', 0, uploadError.message);
+          throw uploadError;
+        }
         
-        // Update progress after upload
-        setUploadProgress(prev => ({
-          ...prev,
-          [fileName]: 70
-        }));
+        // Update progress to processing stage
+        updateFileStatus(file.name, 'processing', 75);
         
         // Get public URL
         const { data: { publicUrl } } = supabase.storage
@@ -206,11 +248,8 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
           thumbnailUrl = '/placeholder.svg';
         }
         
-        // Track upload progress (update to reflect post_media creation started)
-        setUploadProgress(prev => ({
-          ...prev,
-          [fileName]: 90
-        }));
+        // Update to reflect post_media creation started
+        updateFileStatus(file.name, 'processing', 90);
         
         // 3. Create media record
         const { data: mediaData, error: mediaError } = await supabase
@@ -227,13 +266,13 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
           .select()
           .single();
           
-        if (mediaError) throw mediaError;
+        if (mediaError) {
+          updateFileStatus(file.name, 'error', 0, mediaError.message);
+          throw mediaError;
+        }
         
-        // Update progress to complete
-        setUploadProgress(prev => ({
-          ...prev,
-          [fileName]: 100
-        }));
+        // Update to complete
+        updateFileStatus(file.name, 'complete', 100);
         
         return mediaData;
       });
@@ -259,7 +298,28 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
       toast.error('Failed to create post. Please try again.');
     } finally {
       setIsSubmitting(false);
-      setUploadProgress({});
+    }
+  };
+  
+  const getStatusText = (status?: string) => {
+    switch (status) {
+      case 'pending': return 'Ready to upload';
+      case 'uploading': return 'Uploading...';
+      case 'processing': return 'Processing...';
+      case 'complete': return 'Uploaded';
+      case 'error': return 'Upload failed';
+      default: return 'Pending';
+    }
+  };
+  
+  const getStatusColor = (status?: string) => {
+    switch (status) {
+      case 'pending': return 'bg-gray-400';
+      case 'uploading': return 'bg-blue-500';
+      case 'processing': return 'bg-yellow-500';
+      case 'complete': return 'bg-green-500';
+      case 'error': return 'bg-red-500';
+      default: return 'bg-gray-400';
     }
   };
   
@@ -350,13 +410,28 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
                         <X className="w-4 h-4" />
                       </Button>
                     </div>
+                    
+                    {/* Status indicator overlay */}
+                    {file.status && file.status !== 'complete' && file.status !== 'pending' && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                        <div className="text-center">
+                          <Loader2 className="w-8 h-8 animate-spin text-white mx-auto mb-2" />
+                          <span className="text-white text-sm">{getStatusText(file.status)}</span>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
                   <div className="p-3">
                     <div className="flex items-center justify-between mb-2">
-                      <span className="text-sm text-white/70 truncate max-w-[70%]">
-                        {file.name}
-                      </span>
+                      <div className="flex items-center gap-2 truncate max-w-[70%]">
+                        {file.status === 'complete' && (
+                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                        )}
+                        <span className="text-sm text-white/70 truncate">
+                          {file.name}
+                        </span>
+                      </div>
                       <div className="flex gap-1">
                         <Button
                           type="button"
@@ -390,14 +465,22 @@ const PostEditor = ({ onSuccess }: PostEditorProps) => {
                       />
                     </div>
                     
-                    {uploadProgress[file.name] !== undefined && (
-                      <div className="mt-2 w-full bg-background/30 rounded-full h-1.5">
+                    {/* Status bar - show for all files whether or not they're being uploaded */}
+                    <div className="mt-2 space-y-1">
+                      <div className="flex justify-between text-xs text-white/70">
+                        <span>{getStatusText(file.status)}</span>
+                        {file.progress !== undefined && <span>{file.progress}%</span>}
+                      </div>
+                      <div className="w-full bg-background/30 rounded-full h-1.5">
                         <div 
-                          className="bg-primary h-1.5 rounded-full" 
-                          style={{ width: `${uploadProgress[file.name]}%` }}
+                          className={`${getStatusColor(file.status)} h-1.5 rounded-full transition-all duration-200`} 
+                          style={{ width: `${file.progress || 0}%` }}
                         ></div>
                       </div>
-                    )}
+                      {file.error && (
+                        <p className="text-xs text-red-400 mt-1">{file.error}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
               ))}
