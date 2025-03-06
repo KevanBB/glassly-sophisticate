@@ -63,7 +63,8 @@ const UserManagement = () => {
       // for this since direct access to auth.users isn't available through client SDK
       const usersWithEmails = profilesData.map(profile => ({
         ...profile,
-        email: `user_${profile.id.substring(0, 6)}@example.com` // Placeholder for demo
+        email: `user_${profile.id.substring(0, 6)}@example.com`, // Placeholder for demo
+        role: profile.role as 'user' | 'moderator' | 'admin' // Explicitly cast the role to the required type
       }));
 
       setUsers(usersWithEmails);

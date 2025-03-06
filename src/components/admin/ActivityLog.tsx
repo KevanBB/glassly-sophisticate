@@ -80,7 +80,7 @@ const ActivityLog = () => {
         const enrichedActions = data.map(action => ({
           ...action,
           admin_name: getDisplayName(adminProfilesMap[action.admin_id]),
-          target_name: action.target_user_id ? getDisplayName(targetProfilesMap[action.target_user_id]) : null
+          target_name: action.target_user_id ? getDisplayName(targetProfiles[action.target_user_id]) : null
         }));
         
         setActions(enrichedActions);
