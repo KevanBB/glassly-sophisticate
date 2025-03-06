@@ -336,6 +336,7 @@ export type Database = {
           looking_for: string[] | null
           orientation: string | null
           role: string | null
+          stripe_account_id: string | null
           updated_at: string | null
         }
         Insert: {
@@ -360,6 +361,7 @@ export type Database = {
           looking_for?: string[] | null
           orientation?: string | null
           role?: string | null
+          stripe_account_id?: string | null
           updated_at?: string | null
         }
         Update: {
@@ -384,6 +386,7 @@ export type Database = {
           looking_for?: string[] | null
           orientation?: string | null
           role?: string | null
+          stripe_account_id?: string | null
           updated_at?: string | null
         }
         Relationships: []
