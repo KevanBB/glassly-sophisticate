@@ -91,11 +91,18 @@ const MediaGallery = ({ viewType, onViewChange, creatorId, username }: MediaGall
               thumbnail_url: media.thumbnail_url
             }));
             
-            return {
+            // Ensure we're explicitly converting the visibility string to PostVisibility type
+            const postVisibility = post.visibility as PostVisibility;
+            
+            // Make sure post conforms to the Post type
+            const typedPost: Post = {
               ...post,
               media: formattedMedia,
-              visibility: post.visibility as PostVisibility
+              visibility: postVisibility,
+              tags: post.tags || []
             };
+            
+            return typedPost;
           })
         );
         
