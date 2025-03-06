@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
@@ -12,6 +11,7 @@ import { Toaster } from '@/components/ui/sonner';
 import { CreatorApplicationForm } from './components/creator/CreatorApplicationForm';
 import CreatorOnboarding from './pages/creator/CreatorOnboarding';
 import CreatorDashboard from './pages/creator/CreatorDashboard';
+import CreatorProfile from './pages/creator/CreatorProfile';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StripeConnectProvider } from './components/payments/StripeConnectProvider';
 
@@ -64,6 +64,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <CreatorDashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/creator/:username" 
+              element={
+                <ProtectedRoute>
+                  <CreatorProfile />
                 </ProtectedRoute>
               } 
             />
