@@ -1,20 +1,28 @@
 
 import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { useUserProfile } from '@/hooks/useUserProfile';
 import ProfileHeader from '@/components/creator/profile/ProfileHeader';
 import MediaGallery from '@/components/creator/profile/MediaGallery';
 import { ViewType } from '@/components/creator/profile/types';
+import { useCreatorProfile } from '@/hooks/useCreatorProfile';
 
 const CreatorProfile = () => {
   const { username } = useParams();
   const [viewType, setViewType] = useState<ViewType>('timeline');
-  const profile = useUserProfile(username);
+  const { profile, loading, error } = useCreatorProfile(username);
 
-  if (!profile) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p className="text-white/60">Loading profile...</p>
+      </div>
+    );
+  }
+
+  if (error || !profile) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <p className="text-white/60">{error || "Creator not found"}</p>
       </div>
     );
   }
