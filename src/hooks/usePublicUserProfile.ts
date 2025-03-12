@@ -4,14 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { UserProfile, PrivacySettings } from './useUserProfile';
 
-export function usePublicUserProfile(username: string | undefined) {
+export function usePublicUserProfile(userId: string | undefined) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!username) {
+      if (!userId) {
         setLoading(false);
         return;
       }
@@ -20,11 +20,11 @@ export function usePublicUserProfile(username: string | undefined) {
       setError(null);
       
       try {
-        // Fetch profile data by username (email) instead of by user ID
+        // Fetch profile data by user ID
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('email', username)
+          .eq('id', userId)
           .single();
         
         if (profileError) {
@@ -84,7 +84,7 @@ export function usePublicUserProfile(username: string | undefined) {
     };
     
     fetchProfile();
-  }, [username]);
+  }, [userId]);
 
   return { profile, loading, error };
 }

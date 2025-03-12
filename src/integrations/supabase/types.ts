@@ -9,7 +9,582 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      admin_actions: {
+        Row: {
+          action_type: string
+          admin_id: string | null
+          created_at: string | null
+          details: Json | null
+          id: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string | null
+          created_at?: string | null
+          details?: Json | null
+          id?: string
+          target_user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "admin_actions_admin_id_fkey"
+            columns: ["admin_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "admin_actions_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      connections: {
+        Row: {
+          created_at: string | null
+          id: string
+          recipient_id: string
+          requester_id: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          recipient_id: string
+          requester_id: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          recipient_id?: string
+          requester_id?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "connections_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "connections_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contacts: {
+        Row: {
+          contact_id: string
+          created_at: string | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contacts_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creator_applications: {
+        Row: {
+          address: string
+          birthday: string
+          created_at: string | null
+          denial_reason: string | null
+          display_name: string | null
+          email: string | null
+          id: string
+          id_back_url: string
+          id_front_url: string
+          id_selfie_url: string
+          legal_first_name: string
+          legal_last_name: string
+          legal_middle_name: string | null
+          signature_date: string | null
+          status: string | null
+          terms_agreed: boolean | null
+          terms_signature: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          address: string
+          birthday: string
+          created_at?: string | null
+          denial_reason?: string | null
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          id_back_url: string
+          id_front_url: string
+          id_selfie_url: string
+          legal_first_name: string
+          legal_last_name: string
+          legal_middle_name?: string | null
+          signature_date?: string | null
+          status?: string | null
+          terms_agreed?: boolean | null
+          terms_signature?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          address?: string
+          birthday?: string
+          created_at?: string | null
+          denial_reason?: string | null
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          id_back_url?: string
+          id_front_url?: string
+          id_selfie_url?: string
+          legal_first_name?: string
+          legal_last_name?: string
+          legal_middle_name?: string | null
+          signature_date?: string | null
+          status?: string | null
+          terms_agreed?: boolean | null
+          terms_signature?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          destruct_after: string | null
+          id: string
+          is_encrypted: boolean | null
+          is_self_destruct: boolean | null
+          media_type: string | null
+          media_url: string | null
+          read_at: string | null
+          receiver_id: string | null
+          sender_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          destruct_after?: string | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_self_destruct?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          read_at?: string | null
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          destruct_after?: string | null
+          id?: string
+          is_encrypted?: boolean | null
+          is_self_destruct?: boolean | null
+          media_type?: string | null
+          media_url?: string | null
+          read_at?: string | null
+          receiver_id?: string | null
+          sender_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          action_link: string | null
+          content: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          sender_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_link?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          sender_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_link?: string | null
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          sender_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      post_media: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          file_size: number | null
+          id: string
+          media_type: string | null
+          media_url: string
+          position: number | null
+          post_id: string
+          thumbnail_url: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          file_size?: number | null
+          id?: string
+          media_type?: string | null
+          media_url: string
+          position?: number | null
+          post_id: string
+          thumbnail_url?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          file_size?: number | null
+          id?: string
+          media_type?: string | null
+          media_url?: string
+          position?: number | null
+          post_id?: string
+          thumbnail_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "post_media_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      posts: {
+        Row: {
+          caption: string | null
+          created_at: string | null
+          creator_id: string
+          id: string
+          price: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          visibility: string | null
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string | null
+          creator_id: string
+          id?: string
+          price?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string | null
+          creator_id?: string
+          id?: string
+          price?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          visibility?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "posts_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      privacy_settings: {
+        Row: {
+          bio_visibility: string | null
+          disable_message_history: boolean | null
+          display_name_visibility: string | null
+          experience_visibility: string | null
+          hide_from_search: boolean | null
+          incognito_mode: boolean | null
+          interests_visibility: string | null
+          photos_visibility: string | null
+          prevent_screenshots: boolean | null
+          role_visibility: string | null
+          user_id: string
+        }
+        Insert: {
+          bio_visibility?: string | null
+          disable_message_history?: boolean | null
+          display_name_visibility?: string | null
+          experience_visibility?: string | null
+          hide_from_search?: boolean | null
+          incognito_mode?: boolean | null
+          interests_visibility?: string | null
+          photos_visibility?: string | null
+          prevent_screenshots?: boolean | null
+          role_visibility?: string | null
+          user_id: string
+        }
+        Update: {
+          bio_visibility?: string | null
+          disable_message_history?: boolean | null
+          display_name_visibility?: string | null
+          experience_visibility?: string | null
+          hide_from_search?: boolean | null
+          incognito_mode?: boolean | null
+          interests_visibility?: string | null
+          photos_visibility?: string | null
+          prevent_screenshots?: boolean | null
+          role_visibility?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "privacy_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          age: string | null
+          avatar_url: string | null
+          bio: string | null
+          creator_onboarding_complete: boolean | null
+          creator_username: string | null
+          display_name: string | null
+          email: string | null
+          experience_level: string | null
+          first_name: string | null
+          gender: string | null
+          id: string
+          is_active: boolean | null
+          joined_at: string | null
+          kinks_fetishes: string[] | null
+          last_active: string | null
+          last_name: string | null
+          location: string | null
+          looking_for: string[] | null
+          orientation: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          age?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          creator_onboarding_complete?: boolean | null
+          creator_username?: string | null
+          display_name?: string | null
+          email?: string | null
+          experience_level?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          kinks_fetishes?: string[] | null
+          last_active?: string | null
+          last_name?: string | null
+          location?: string | null
+          looking_for?: string[] | null
+          orientation?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          age?: string | null
+          avatar_url?: string | null
+          bio?: string | null
+          creator_onboarding_complete?: boolean | null
+          creator_username?: string | null
+          display_name?: string | null
+          email?: string | null
+          experience_level?: string | null
+          first_name?: string | null
+          gender?: string | null
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string | null
+          kinks_fetishes?: string[] | null
+          last_active?: string | null
+          last_name?: string | null
+          location?: string | null
+          looking_for?: string[] | null
+          orientation?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      user_kinks: {
+        Row: {
+          created_at: string | null
+          id: string
+          kink_name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          kink_name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          kink_name?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_kinks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_notes: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

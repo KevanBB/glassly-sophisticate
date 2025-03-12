@@ -1,38 +1,29 @@
 
-import type { Database } from '@/integrations/supabase/types';
-import type { User } from '@supabase/supabase-js';
-
-// User profile information
-export type Profile = Database['public']['Tables']['profiles']['Row'];
-
-// Message types
-export type MessageType = 'text' | 'image' | 'voice' | 'video';
+export type MessageType = 'text' | 'image' | 'audio' | 'video' | 'file';
 
 export interface Message {
   id: string;
   sender_id: string;
   receiver_id: string;
-  content: string;
-  type: MessageType;
+  content?: string;
+  media_url?: string;
+  media_type: MessageType;
   created_at: string;
-  read: boolean;
-  self_destruct_time?: number | null;
-  media_url?: string | null;
+  read_at?: string;
+  is_self_destruct: boolean;
+  destruct_after?: string;
 }
 
-// Contact list types
 export interface Contact {
   id: string;
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
-  lastMessage?: Message;
-  unreadCount?: number;
+  last_active?: string | null;
+  is_active?: boolean;
 }
 
-// Conversation type
-export interface Conversation {
-  contact: Contact;
-  lastMessage: Message | null;
-  unreadCount: number;
+export interface DestructTimerOption {
+  value: string;
+  label: string;
 }

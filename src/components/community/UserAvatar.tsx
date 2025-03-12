@@ -80,9 +80,9 @@ const UserAvatar = ({
     </div>
   );
 
-  if (linkToProfile && user.email) {
+  if (linkToProfile) {
     return (
-      <Link to={`/profile/${user.email}`}>
+      <Link to={`/profile/${user.id}`}>
         {avatarContent}
       </Link>
     );
