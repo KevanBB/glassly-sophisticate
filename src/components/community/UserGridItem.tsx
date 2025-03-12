@@ -11,6 +11,7 @@ interface User {
   avatar_url: string | null;
   last_active: string | null;
   is_active: boolean;
+  email: string | null;
 }
 
 interface UserGridItemProps {
@@ -45,7 +46,7 @@ const UserGridItem = ({ user }: UserGridItemProps) => {
   };
 
   return (
-    <Link to={`/profile/${user.id}`} key={user.id} className="flex flex-col items-center space-y-2">
+    <Link to={`/profile/${user.email}`} key={user.id} className="flex flex-col items-center space-y-2">
       <UserAvatar 
         user={user} 
         size="lg" 

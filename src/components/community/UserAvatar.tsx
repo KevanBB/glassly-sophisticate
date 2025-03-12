@@ -12,6 +12,7 @@ interface UserAvatarProps {
     first_name?: string | null;
     last_name?: string | null;
     is_active?: boolean;
+    email?: string | null;
   };
   size?: 'sm' | 'md' | 'lg' | 'xl';
   showActiveIndicator?: boolean;
@@ -79,9 +80,9 @@ const UserAvatar = ({
     </div>
   );
 
-  if (linkToProfile && user.id) {
+  if (linkToProfile && user.email) {
     return (
-      <Link to={`/profile/${user.id}`}>
+      <Link to={`/profile/${user.email}`}>
         {avatarContent}
       </Link>
     );

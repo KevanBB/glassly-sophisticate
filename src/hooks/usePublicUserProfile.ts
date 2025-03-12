@@ -4,14 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { UserProfile, PrivacySettings } from './useUserProfile';
 
-export function usePublicUserProfile(userId: string | undefined) {
+export function usePublicUserProfile(username: string | undefined) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!userId) {
+      if (!username) {
         setLoading(false);
         return;
       }
@@ -20,11 +20,11 @@ export function usePublicUserProfile(userId: string | undefined) {
       setError(null);
       
       try {
-        // Fetch profile data
+        // Fetch profile data by username (email) instead of by user ID
         const { data: profileData, error: profileError } = await supabase
           .from('profiles')
           .select('*')
-          .eq('id', userId)
+          .eq('email', username)
           .single();
         
         if (profileError) {
@@ -39,12 +39,12 @@ export function usePublicUserProfile(userId: string | undefined) {
         const { data: privacyData } = await supabase
           .from('privacy_settings')
           .select('*')
-          .eq('user_id', userId)
+          .eq('user_id', profileData.id)
           .maybeSingle();
         
         // Create default privacy settings with proper types if none exist
         const defaultPrivacySettings: PrivacySettings = {
-          user_id: userId,
+          user_id: profileData.id,
           display_name_visibility: 'public',
           role_visibility: 'public',
           interests_visibility: 'public',
@@ -65,7 +65,7 @@ export function usePublicUserProfile(userId: string | undefined) {
               experience_visibility: (privacyData.experience_visibility as 'public' | 'friends' | 'private') || 'public',
               bio_visibility: (privacyData.bio_visibility as 'public' | 'friends' | 'private') || 'public',
               photos_visibility: (privacyData.photos_visibility as 'public' | 'friends' | 'private') || 'public',
-              user_id: userId
+              user_id: profileData.id
             }
           : defaultPrivacySettings;
         
@@ -84,7 +84,7 @@ export function usePublicUserProfile(userId: string | undefined) {
     };
     
     fetchProfile();
-  }, [userId]);
+  }, [username]);
 
   return { profile, loading, error };
 }

@@ -17,21 +17,21 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const UserProfilePage = () => {
-  const { userId } = useParams<{ userId: string }>();
+  const { username } = useParams<{ username: string }>();
   const { user } = useAuth();
-  const { profile, loading, error } = usePublicUserProfile(userId);
+  const { profile, loading, error } = usePublicUserProfile(username);
   const navigate = useNavigate();
   const [currentTab, setCurrentTab] = useState("about");
   
-  // Redirect to own profile if viewing your own profile via URL
+  // If viewing your own profile, redirect to /profile
   useEffect(() => {
-    if (user && userId && user.id === userId) {
+    if (user && username && user.email === username) {
       navigate('/profile');
     }
-  }, [user, userId, navigate]);
+  }, [user, username, navigate]);
 
   // Don't render anything if redirecting to own profile
-  if (user && userId && user.id === userId) {
+  if (user && username && user.email === username) {
     return null;
   }
 
