@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/context/AuthContext';
@@ -33,7 +32,7 @@ const CreatorOnboarding = () => {
       try {
         const { data: profile, error } = await supabase
           .from('profiles')
-          .select('is_creator, creator_onboarding_complete')
+          .select('creator_username, creator_onboarding_complete')
           .eq('id', user.id)
           .single();
           
@@ -43,7 +42,10 @@ const CreatorOnboarding = () => {
           return;
         }
 
-        if (!profile?.is_creator) {
+        // Check if user is a creator based on having a creator_username
+        const isCreator = !!profile?.creator_username;
+        
+        if (!isCreator) {
           navigate('/dashboard');
           return;
         }
@@ -68,25 +70,17 @@ const CreatorOnboarding = () => {
     if (!user) return;
 
     try {
-      // Insert into creator_onboarding table
-      const { error: onboardingError } = await supabase
-        .from('creator_onboarding')
-        .insert({
-          user_id: user.id,
-          creator_username: username,
-          terms_agreed: termsAgreed,
-          terms_signature: signature,
-          terms_signed_at: new Date().toISOString()
-        });
-
-      if (onboardingError) throw onboardingError;
-
       // Update profile with username and onboarding completion
       const { error: profileError } = await supabase
         .from('profiles')
         .update({
           creator_username: username,
-          creator_onboarding_complete: true
+          creator_onboarding_complete: true,
+          // Store terms data directly in the profile
+          // or you could create a separate terms table if needed
+          terms_agreed: termsAgreed,
+          terms_signature: signature,
+          terms_signed_at: new Date().toISOString()
         })
         .eq('id', user.id);
 

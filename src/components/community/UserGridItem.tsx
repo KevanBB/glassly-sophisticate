@@ -11,7 +11,7 @@ interface User {
   avatar_url: string | null;
   last_active: string | null;
   is_active: boolean;
-  email: string | null;
+  email?: string | null; // Make email optional
 }
 
 interface UserGridItemProps {

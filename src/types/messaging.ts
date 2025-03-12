@@ -1,5 +1,5 @@
 
-export type MessageType = 'text' | 'image' | 'audio' | 'video' | 'file';
+export type MessageType = 'text' | 'image' | 'audio' | 'video' | 'file' | 'voice';
 
 export interface Message {
   id: string;
@@ -12,6 +12,11 @@ export interface Message {
   read_at?: string;
   is_self_destruct: boolean;
   destruct_after?: string;
+  
+  // Additional properties needed by components
+  type?: MessageType; // Alias for media_type for backward compatibility
+  read?: boolean; // Computed from read_at
+  self_destruct_time?: number; // Parsed from destruct_after
 }
 
 export interface Contact {
@@ -21,6 +26,21 @@ export interface Contact {
   avatar_url: string | null;
   last_active?: string | null;
   is_active?: boolean;
+  
+  // Additional properties needed by components
+  lastMessage?: {
+    id: string;
+    sender_id: string;
+    receiver_id: string;
+    content?: string;
+    type?: MessageType;
+    created_at: string;
+    read?: boolean;
+    media_url?: string;
+    self_destruct_time?: number;
+  };
+  unreadCount?: number;
+  email?: string | null; // Optional for backward compatibility
 }
 
 export interface DestructTimerOption {

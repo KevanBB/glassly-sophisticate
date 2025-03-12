@@ -16,7 +16,7 @@ export const sendTextMessage = async (
     is_encrypted: true,
     is_self_destruct: isSelfDestruct,
     destruct_after: isSelfDestruct ? `${destructTime} minutes` : null,
-    media_type: 'text',
+    media_type: 'text' as MessageType,
   };
   
   const { error } = await supabase
@@ -43,7 +43,7 @@ export const uploadMediaMessage = async (
   let mediaType: MessageType = 'text';
   if (isImage) mediaType = 'image';
   else if (isVideo) mediaType = 'video';
-  else if (isAudio) mediaType = 'voice';
+  else if (isAudio) mediaType = 'audio';
   
   // Upload file to storage
   const fileName = `${user.id}/${Date.now()}-${file.name}`;

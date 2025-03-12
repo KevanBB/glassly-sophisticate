@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/components/ui/use-toast";
@@ -39,9 +38,13 @@ export const useMessageThread = (user: any, contact: Contact | null) => {
           sender_id: dbMessage.sender_id,
           receiver_id: dbMessage.receiver_id,
           content: dbMessage.content,
+          media_type: (dbMessage.media_type as MessageType) || 'text',
           type: (dbMessage.media_type as MessageType) || 'text',
           created_at: dbMessage.created_at || new Date().toISOString(),
           read: dbMessage.read_at !== null,
+          read_at: dbMessage.read_at,
+          is_self_destruct: dbMessage.is_self_destruct || false,
+          destruct_after: dbMessage.destruct_after,
           self_destruct_time: dbMessage.is_self_destruct ? 
             (typeof dbMessage.destruct_after === 'string' ? 
               parseInt(dbMessage.destruct_after.split(' ')[0], 10) : 
@@ -130,9 +133,13 @@ export const useMessageThread = (user: any, contact: Contact | null) => {
         sender_id: dbMsg.sender_id,
         receiver_id: dbMsg.receiver_id,
         content: dbMsg.content,
+        media_type: (dbMsg.media_type as MessageType) || 'text',
         type: (dbMsg.media_type as MessageType) || 'text',
         created_at: dbMsg.created_at || new Date().toISOString(),
         read: dbMsg.read_at !== null,
+        read_at: dbMsg.read_at,
+        is_self_destruct: dbMsg.is_self_destruct || false,
+        destruct_after: dbMsg.destruct_after,
         self_destruct_time: dbMsg.is_self_destruct ? 
           (typeof dbMsg.destruct_after === 'string' ? 
             parseInt(dbMsg.destruct_after.split(' ')[0], 10) : 

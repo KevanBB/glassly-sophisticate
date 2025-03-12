@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/components/ui/use-toast";
-import type { Contact, Message } from '@/types/messaging';
+import type { Contact, Message, MessageType } from '@/types/messaging';
 
 export const useConversations = () => {
   const { user } = useAuth();
@@ -43,6 +43,8 @@ export const useConversations = () => {
         first_name: profile.first_name,
         last_name: profile.last_name,
         avatar_url: profile.avatar_url,
+        last_active: profile.last_active,
+        is_active: profile.is_active || false,
       }));
 
       const contactsWithLastMessage = await Promise.all(contacts.map(async (contact) => {
@@ -64,7 +66,7 @@ export const useConversations = () => {
           
         if (countError) throw countError;
 
-        let lastMessage: Message | undefined;
+        let lastMessage: Contact['lastMessage'] = undefined;
         if (messagesData && messagesData.length > 0) {
           const dbMsg = messagesData[0];
           lastMessage = {
@@ -72,7 +74,7 @@ export const useConversations = () => {
             sender_id: dbMsg.sender_id,
             receiver_id: dbMsg.receiver_id,
             content: dbMsg.content,
-            type: (dbMsg.media_type as any) || 'text',
+            type: (dbMsg.media_type as MessageType) || 'text',
             created_at: dbMsg.created_at || new Date().toISOString(),
             read: dbMsg.read_at !== null,
             self_destruct_time: dbMsg.is_self_destruct ? 

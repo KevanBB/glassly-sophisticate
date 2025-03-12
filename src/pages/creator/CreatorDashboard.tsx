@@ -26,11 +26,20 @@ const CreatorDashboard = () => {
       try {
         const { data: creatorProfile, error } = await supabase
           .from('profiles')
-          .select('is_creator, creator_onboarding_complete, creator_username')
+          .select('creator_username, creator_onboarding_complete')
           .eq('id', user.id)
           .single();
 
-        if (error || !creatorProfile?.is_creator) {
+        if (error) {
+          console.error('Error fetching profile:', error);
+          navigate('/dashboard');
+          return;
+        }
+
+        // Check if the user is a creator based on their creator_username
+        const isCreator = !!creatorProfile?.creator_username;
+        
+        if (!isCreator) {
           navigate('/dashboard');
           return;
         }
