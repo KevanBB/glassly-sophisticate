@@ -1,7 +1,6 @@
-
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, EthereumIcon, CreditCard } from "lucide-react";
+import { ArrowRight, CreditCard, Wallet } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -14,7 +13,6 @@ const Index = () => {
   const [showGlitch, setShowGlitch] = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
   
-  // Track mouse position for lighting effect
   const handleMouseMove = (e: React.MouseEvent) => {
     setMousePosition({
       x: e.clientX / window.innerWidth,
@@ -23,23 +21,19 @@ const Index = () => {
   };
 
   useEffect(() => {
-    // Trigger page load animation
     const timer = setTimeout(() => {
       setIsLoaded(true);
     }, 500);
 
-    // Ensure video plays automatically when loaded
     if (videoRef.current) {
       videoRef.current.play().catch(error => {
         console.error("Video autoplay failed:", error);
       });
     }
 
-    // Cleanup
     return () => clearTimeout(timer);
   }, []);
 
-  // Text animation variants
   const letterVariants = {
     hidden: { opacity: 0 },
     visible: (i: number) => ({
@@ -48,7 +42,6 @@ const Index = () => {
     })
   };
 
-  // Play subtle audio on button hover
   const playHoverSound = () => {
     if (audioRef.current) {
       audioRef.current.volume = 0.2;
@@ -57,7 +50,6 @@ const Index = () => {
     }
   };
 
-  // Text animation components
   const AnimatedText = ({ text, delay = 0, className, glitch = false }: { text: string, delay?: number, className?: string, glitch?: boolean }) => (
     <div className={`overflow-hidden ${className}`}>
       <motion.div
@@ -93,12 +85,10 @@ const Index = () => {
       className="min-h-screen relative flex flex-col items-center justify-center px-4 overflow-hidden"
       onMouseMove={handleMouseMove}
     >
-      {/* Hidden audio elements for sound design */}
       <audio ref={audioRef} className="hidden">
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-tech-click-1140.mp3" type="audio/mpeg" />
       </audio>
 
-      {/* Video background with dynamic lighting based on cursor position */}
       <div className="absolute inset-0 z-[-20] w-full h-full overflow-hidden">
         <div 
           className="absolute inset-0 bg-gradient-to-r from-dark-300/50 to-dark-100/30"
@@ -133,7 +123,6 @@ const Index = () => {
         </video>
       </div>
 
-      {/* Navigation bar that transforms on scroll */}
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -176,7 +165,6 @@ const Index = () => {
         </div>
       </motion.nav>
 
-      {/* Main hero content */}
       <div className="text-center space-y-12 max-w-4xl mx-auto z-10 pt-20">
         <AnimatePresence>
           {isLoaded && (
@@ -185,7 +173,6 @@ const Index = () => {
               animate={{ opacity: 1 }}
               className="space-y-6"
             >
-              {/* Animated tag line */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -197,7 +184,6 @@ const Index = () => {
                   Premium Platform
                 </div>
                 
-                {/* Main headline with animated text effects */}
                 <div className="space-y-4 mb-6">
                   <AnimatedText 
                     text="Power has a new domain." 
@@ -231,7 +217,6 @@ const Index = () => {
                 </div>
               </motion.div>
               
-              {/* CTA button with animations */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -253,7 +238,6 @@ const Index = () => {
                   }}
                   onMouseLeave={() => setButtonHovered(false)}
                   onClick={() => {
-                    // Add glitch effect before navigation
                     setShowGlitch(true);
                     setTimeout(() => {
                       navigate('/login');
@@ -273,7 +257,6 @@ const Index = () => {
                   />
                 </motion.button>
                 
-                {/* Alternative signup options */}
                 <div className="mt-6 flex flex-col md:flex-row gap-4 justify-center">
                   <motion.button
                     whileHover={{ 
@@ -284,7 +267,7 @@ const Index = () => {
                     className="flex items-center justify-center gap-2 px-5 py-2 rounded-lg text-sm text-white/70 bg-white/5 border border-white/10 transition-all"
                     onMouseEnter={playHoverSound}
                   >
-                    <EthereumIcon className="w-4 h-4" />
+                    <Wallet className="w-4 h-4" />
                     <span>Sign up with Crypto</span>
                   </motion.button>
                   <motion.button
@@ -305,15 +288,13 @@ const Index = () => {
           )}
         </AnimatePresence>
       </div>
-      
-      {/* Key features sections with hover effects */}
+
       <motion.section
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 3, duration: 1 }}
         className="w-full max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 mt-32 px-6 pb-24 z-10"
       >
-        {/* Empowerment Section */}
         <motion.div 
           className="glass-panel p-6 rounded-xl relative overflow-hidden"
           whileHover={{ 
@@ -352,7 +333,6 @@ const Index = () => {
           </motion.p>
         </motion.div>
         
-        {/* Security Section */}
         <motion.div 
           className="glass-panel p-6 rounded-xl relative overflow-hidden"
           whileHover={{ 
@@ -389,7 +369,6 @@ const Index = () => {
           <p className="text-white/70">Advanced encryption and discretion by design.</p>
         </motion.div>
         
-        {/* Innovation Section */}
         <motion.div 
           className="glass-panel p-6 rounded-xl relative overflow-hidden"
           whileHover={{ 
@@ -426,8 +405,7 @@ const Index = () => {
           <p className="text-white/70">Blockchain-secured transactions and smart contracts.</p>
         </motion.div>
       </motion.section>
-      
-      {/* Floating particles effect */}
+
       <div className="absolute inset-0 z-0 pointer-events-none">
         {[...Array(20)].map((_, index) => (
           <motion.div
@@ -452,7 +430,6 @@ const Index = () => {
         ))}
       </div>
 
-      {/* Glitch overlay for transitions */}
       <AnimatePresence>
         {showGlitch && (
           <motion.div 
