@@ -9,6 +9,39 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action: string
+          created_at: string | null
+          data: Json | null
+          element: string | null
+          id: string
+          page: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          created_at?: string | null
+          data?: Json | null
+          element?: string | null
+          id?: string
+          page?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          created_at?: string | null
+          data?: Json | null
+          element?: string | null
+          id?: string
+          page?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       admin_actions: {
         Row: {
           action_type: string
@@ -203,6 +236,260 @@ export type Database = {
           },
         ]
       }
+      forum_categories: {
+        Row: {
+          allowed_roles: string[] | null
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_private: boolean | null
+          name: string
+          position: number | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_roles?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_private?: boolean | null
+          name: string
+          position?: number | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_roles?: string[] | null
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_private?: boolean | null
+          name?: string
+          position?: number | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      forum_posts: {
+        Row: {
+          content: string
+          created_at: string | null
+          edited_at: string | null
+          id: string
+          parent_post_id: string | null
+          thread_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          parent_post_id?: string | null
+          thread_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          edited_at?: string | null
+          id?: string
+          parent_post_id?: string | null
+          thread_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_posts_parent_post_id_fkey"
+            columns: ["parent_post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "forum_posts_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "forum_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_reactions: {
+        Row: {
+          created_at: string | null
+          id: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          post_id: string
+          reaction_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          post_id?: string
+          reaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "forum_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_subcategories: {
+        Row: {
+          allowed_roles: string[] | null
+          category_id: string
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_private: boolean | null
+          name: string
+          position: number | null
+          slug: string
+          updated_at: string | null
+        }
+        Insert: {
+          allowed_roles?: string[] | null
+          category_id: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_private?: boolean | null
+          name: string
+          position?: number | null
+          slug: string
+          updated_at?: string | null
+        }
+        Update: {
+          allowed_roles?: string[] | null
+          category_id?: string
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_private?: boolean | null
+          name?: string
+          position?: number | null
+          slug?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_subcategories_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "forum_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_subscriptions: {
+        Row: {
+          created_at: string | null
+          id: string
+          thread_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          thread_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          thread_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_subscriptions_thread_id_fkey"
+            columns: ["thread_id"]
+            isOneToOne: false
+            referencedRelation: "forum_threads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      forum_threads: {
+        Row: {
+          created_at: string | null
+          id: string
+          is_featured: boolean | null
+          is_locked: boolean | null
+          is_pinned: boolean | null
+          is_private: boolean | null
+          private_users: string[] | null
+          slug: string
+          subcategory_id: string
+          title: string
+          updated_at: string | null
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_locked?: boolean | null
+          is_pinned?: boolean | null
+          is_private?: boolean | null
+          private_users?: string[] | null
+          slug: string
+          subcategory_id: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          is_featured?: boolean | null
+          is_locked?: boolean | null
+          is_pinned?: boolean | null
+          is_private?: boolean | null
+          private_users?: string[] | null
+          slug?: string
+          subcategory_id?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "forum_threads_subcategory_id_fkey"
+            columns: ["subcategory_id"]
+            isOneToOne: false
+            referencedRelation: "forum_subcategories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string | null
@@ -215,6 +502,7 @@ export type Database = {
           media_url: string | null
           read_at: string | null
           receiver_id: string | null
+          room_id: string | null
           sender_id: string | null
         }
         Insert: {
@@ -228,6 +516,7 @@ export type Database = {
           media_url?: string | null
           read_at?: string | null
           receiver_id?: string | null
+          room_id?: string | null
           sender_id?: string | null
         }
         Update: {
@@ -241,6 +530,7 @@ export type Database = {
           media_url?: string | null
           read_at?: string | null
           receiver_id?: string | null
+          room_id?: string | null
           sender_id?: string | null
         }
         Relationships: [
@@ -453,6 +743,7 @@ export type Database = {
         Row: {
           age: string | null
           avatar_url: string | null
+          banner_url: string | null
           bio: string | null
           creator_onboarding_complete: boolean | null
           creator_username: string | null
@@ -476,6 +767,7 @@ export type Database = {
         Insert: {
           age?: string | null
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           creator_onboarding_complete?: boolean | null
           creator_username?: string | null
@@ -499,6 +791,7 @@ export type Database = {
         Update: {
           age?: string | null
           avatar_url?: string | null
+          banner_url?: string | null
           bio?: string | null
           creator_onboarding_complete?: boolean | null
           creator_username?: string | null
@@ -520,6 +813,197 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      status_comment_likes: {
+        Row: {
+          comment_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          comment_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          comment_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "status_comment_likes_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "status_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "status_comment_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      status_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          parent_comment_id: string | null
+          status_update_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          status_update_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          parent_comment_id?: string | null
+          status_update_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "status_comments_parent_comment_id_fkey"
+            columns: ["parent_comment_id"]
+            isOneToOne: false
+            referencedRelation: "status_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "status_comments_status_update_id_fkey"
+            columns: ["status_update_id"]
+            isOneToOne: false
+            referencedRelation: "status_updates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "status_comments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      status_likes: {
+        Row: {
+          created_at: string
+          id: string
+          status_update_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          status_update_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          status_update_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "status_likes_status_update_id_fkey"
+            columns: ["status_update_id"]
+            isOneToOne: false
+            referencedRelation: "status_updates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "status_likes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      status_update_media: {
+        Row: {
+          created_at: string
+          id: string
+          media_type: string
+          media_url: string
+          status_update_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          media_type: string
+          media_url: string
+          status_update_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          media_type?: string
+          media_url?: string
+          status_update_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "status_update_media_status_update_id_fkey"
+            columns: ["status_update_id"]
+            isOneToOne: false
+            referencedRelation: "status_updates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      status_updates: {
+        Row: {
+          content: string | null
+          created_at: string
+          hashtags: string[] | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          hashtags?: string[] | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "status_updates_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_kinks: {
         Row: {

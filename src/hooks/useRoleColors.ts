@@ -1,47 +1,23 @@
 
-import { useMemo } from 'react';
+import { useState, useCallback } from 'react';
 
-export function useRoleColors() {
-  const getRoleColor = useMemo(() => (role: string) => {
-    switch (role.toLowerCase()) {
+export const useRoleColors = () => {
+  const getRoleColor = useCallback((role?: string) => {
+    if (!role) return '';
+    
+    switch(role.toLowerCase()) {
       case 'dominant':
-        return 'bg-red-600';
+        return 'bg-red-500/20 text-red-400';
       case 'submissive':
-        return 'bg-blue-600';
+        return 'bg-blue-500/20 text-blue-400';
       case 'switch':
-        return 'bg-purple-600';
+        return 'bg-purple-500/20 text-purple-400';
       default:
-        return 'bg-gray-600';
+        return 'bg-gray-500/20 text-gray-400';
     }
   }, []);
 
-  const getRoleColorClass = useMemo(() => (role: string) => {
-    return {
-      dominant: {
-        background: 'bg-red-600',
-        text: 'text-red-400',
-        border: 'border-red-600',
-        hover: 'hover:bg-red-700',
-      },
-      submissive: {
-        background: 'bg-blue-600',
-        text: 'text-blue-400',
-        border: 'border-blue-600',
-        hover: 'hover:bg-blue-700',
-      },
-      switch: {
-        background: 'bg-purple-600',
-        text: 'text-purple-400',
-        border: 'border-purple-600',
-        hover: 'hover:bg-purple-700',
-      }
-    }[role.toLowerCase()] || {
-      background: 'bg-gray-600',
-      text: 'text-gray-400',
-      border: 'border-gray-600',
-      hover: 'hover:bg-gray-700',
-    };
-  }, []);
+  return { getRoleColor };
+};
 
-  return { getRoleColor, getRoleColorClass };
-}
+export default useRoleColors;
