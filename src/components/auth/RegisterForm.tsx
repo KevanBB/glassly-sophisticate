@@ -22,6 +22,9 @@ const RegisterForm = () => {
   const [isUsernameValid, setIsUsernameValid] = useState(false);
   const [isUsernameAvailable, setIsUsernameAvailable] = useState(false);
   const [usernameMessage, setUsernameMessage] = useState('');
+  const [emailMessage, setEmailMessage] = useState('');
+  const [isEmailAvailable, setIsEmailAvailable] = useState(true);
+  const [checkingEmail, setCheckingEmail] = useState(false);
 
   // Validate username format
   useEffect(() => {
@@ -70,6 +73,49 @@ const RegisterForm = () => {
     return () => clearTimeout(timer);
   }, [username, isUsernameValid]);
 
+  // Check email availability with debounce
+  useEffect(() => {
+    const checkEmail = async () => {
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
+      
+      setCheckingEmail(true);
+      setEmailMessage('');
+      
+      try {
+        const { data, error } = await supabase.auth.admin.getUserByEmail(email);
+        
+        // This endpoint might not be accessible in some configurations
+        // Instead, we'll attempt a signIn which will tell us if the user exists or not
+        const { error: signInError } = await supabase.auth.signInWithOtp({
+          email,
+          options: {
+            shouldCreateUser: false,
+          }
+        });
+        
+        if (signInError && signInError.message.includes('not found')) {
+          setIsEmailAvailable(true);
+          setEmailMessage('');
+        } else {
+          setIsEmailAvailable(false);
+          setEmailMessage('An account with this email already exists');
+        }
+      } catch (error) {
+        console.error('Error checking email:', error);
+      } finally {
+        setCheckingEmail(false);
+      }
+    };
+    
+    const timer = setTimeout(() => {
+      if (email && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        checkEmail();
+      }
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [email]);
+
   const calculateAge = (birthdate: string): number => {
     const today = new Date();
     const birthDate = new Date(birthdate);
@@ -93,6 +139,11 @@ const RegisterForm = () => {
     
     if (!isUsernameValid || !isUsernameAvailable) {
       toast.error('Please choose a valid and available username');
+      return;
+    }
+    
+    if (!isEmailAvailable) {
+      toast.error('Please use a different email address');
       return;
     }
     
@@ -185,10 +236,23 @@ const RegisterForm = () => {
               placeholder="name@example.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 glass-input rounded-lg"
+              className={cn(
+                "w-full pl-10 pr-4 py-3 glass-input rounded-lg",
+                email && !isEmailAvailable && "border-red-500"
+              )}
               required
             />
+            {checkingEmail && (
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <div className="h-4 w-4 border-2 border-white/40 border-t-transparent rounded-full animate-spin"></div>
+              </div>
+            )}
           </div>
+          {emailMessage && (
+            <p className="text-xs mt-1 text-red-400">
+              {emailMessage}
+            </p>
+          )}
         </div>
         
         <div className="space-y-2">
