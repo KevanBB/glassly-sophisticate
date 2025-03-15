@@ -1,7 +1,7 @@
 
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import React, { useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Index from './pages/Index';
 import { Login } from './pages/auth/Login';
@@ -19,8 +19,24 @@ import CommunityPage from './pages/Community';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StripeConnectProvider } from './components/payments/StripeConnectProvider';
 import UserProfile from './pages/UserProfile';
+import ProfileSetup from './pages/ProfileSetup';
 
 const queryClient = new QueryClient();
+
+// Wrapper component to handle new user redirects
+const AuthRedirect = ({ children }: { children: React.ReactNode }) => {
+  const { isNewUser, loading, user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!loading && user && isNewUser && location.pathname !== '/profile/setup') {
+      navigate('/profile/setup');
+    }
+  }, [isNewUser, loading, navigate, user, location]);
+
+  return <>{children}</>;
+};
 
 function App() {
   return (
@@ -33,10 +49,20 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route 
+              path="/profile/setup" 
+              element={
+                <ProtectedRoute>
+                  <ProfileSetup />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <AuthRedirect>
+                    <Dashboard />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -44,7 +70,9 @@ function App() {
               path="/admin" 
               element={
                 <ProtectedRoute>
-                  <AdminDashboard />
+                  <AuthRedirect>
+                    <AdminDashboard />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -52,7 +80,9 @@ function App() {
               path="/creator-application" 
               element={
                 <ProtectedRoute>
-                  <CreatorApplicationForm />
+                  <AuthRedirect>
+                    <CreatorApplicationForm />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -60,7 +90,9 @@ function App() {
               path="/creator/onboarding" 
               element={
                 <ProtectedRoute>
-                  <CreatorOnboarding />
+                  <AuthRedirect>
+                    <CreatorOnboarding />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -68,7 +100,9 @@ function App() {
               path="/creator/dashboard" 
               element={
                 <ProtectedRoute>
-                  <CreatorDashboard />
+                  <AuthRedirect>
+                    <CreatorDashboard />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -76,7 +110,9 @@ function App() {
               path="/creator/create-post" 
               element={
                 <ProtectedRoute>
-                  <CreatePost />
+                  <AuthRedirect>
+                    <CreatePost />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -84,7 +120,9 @@ function App() {
               path="/creator/:username" 
               element={
                 <ProtectedRoute>
-                  <CreatorProfile />
+                  <AuthRedirect>
+                    <CreatorProfile />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -92,7 +130,9 @@ function App() {
               path="/messages" 
               element={
                 <ProtectedRoute>
-                  <MessagesPage />
+                  <AuthRedirect>
+                    <MessagesPage />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -100,7 +140,9 @@ function App() {
               path="/community" 
               element={
                 <ProtectedRoute>
-                  <CommunityPage />
+                  <AuthRedirect>
+                    <CommunityPage />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />
@@ -108,7 +150,9 @@ function App() {
               path="/profile/:username" 
               element={
                 <ProtectedRoute>
-                  <UserProfile />
+                  <AuthRedirect>
+                    <UserProfile />
+                  </AuthRedirect>
                 </ProtectedRoute>
               } 
             />

@@ -1,16 +1,17 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'sonner';
 import { Calendar, Eye, EyeOff, Lock, Mail, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/context/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const RegisterForm = () => {
   const navigate = useNavigate();
   const { signUp } = useAuth();
-  const [name, setName] = useState('');
+  const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -18,6 +19,56 @@ const RegisterForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isUsernameValid, setIsUsernameValid] = useState(false);
+  const [isUsernameAvailable, setIsUsernameAvailable] = useState(false);
+  const [usernameMessage, setUsernameMessage] = useState('');
+
+  // Validate username format
+  useEffect(() => {
+    // Check if username is at least 3 alphanumeric characters
+    const isValid = /^[a-zA-Z0-9]{3,}$/.test(username);
+    setIsUsernameValid(isValid);
+    
+    if (!isValid && username) {
+      setUsernameMessage('Username must be at least 3 alphanumeric characters');
+    } else if (!username) {
+      setUsernameMessage('');
+    }
+  }, [username]);
+
+  // Check username availability with debounce
+  useEffect(() => {
+    const checkUsername = async () => {
+      if (!isUsernameValid) return;
+      
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('username')
+          .eq('username', username)
+          .single();
+          
+        if (error && error.code === 'PGRST116') {
+          // No data found means username is available
+          setIsUsernameAvailable(true);
+          setUsernameMessage('Username is available');
+        } else {
+          setIsUsernameAvailable(false);
+          setUsernameMessage('Username is already taken');
+        }
+      } catch (error) {
+        console.error('Error checking username:', error);
+      }
+    };
+    
+    const timer = setTimeout(() => {
+      if (username && isUsernameValid) {
+        checkUsername();
+      }
+    }, 500);
+    
+    return () => clearTimeout(timer);
+  }, [username, isUsernameValid]);
 
   const calculateAge = (birthdate: string): number => {
     const today = new Date();
@@ -35,8 +86,13 @@ const RegisterForm = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!name || !email || !password || !confirmPassword || !birthdate) {
+    if (!username || !email || !password || !confirmPassword || !birthdate) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+    
+    if (!isUsernameValid || !isUsernameAvailable) {
+      toast.error('Please choose a valid and available username');
       return;
     }
     
@@ -59,14 +115,8 @@ const RegisterForm = () => {
     setIsLoading(true);
     
     try {
-      // Split the name into first and last name
-      const nameParts = name.trim().split(/\s+/);
-      const firstName = nameParts[0] || '';
-      const lastName = nameParts.slice(1).join(' ') || '';
-      
       const { error } = await signUp(email, password, {
-        first_name: firstName,
-        last_name: lastName,
+        username: username,
         birthdate: birthdate
       });
       
@@ -78,7 +128,7 @@ const RegisterForm = () => {
       
       // In development, we might navigate directly since email confirmation might be disabled
       // In production, we'd typically show a "check your email" screen instead
-      navigate('/dashboard');
+      navigate('/profile/setup');
     } catch (error: any) {
       toast.error(error.message || 'Failed to register');
     } finally {
@@ -90,23 +140,35 @@ const RegisterForm = () => {
     <form onSubmit={handleRegister} className="space-y-6">
       <div className="space-y-4">
         <div className="space-y-2">
-          <label htmlFor="name" className="block text-sm font-medium text-white/80">
-            Full Name
+          <label htmlFor="username" className="block text-sm font-medium text-white/80">
+            Username
           </label>
           <div className="relative">
             <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
               <User className="w-5 h-5 text-white/40" />
             </div>
             <input
-              id="name"
+              id="username"
               type="text"
-              placeholder="John Doe"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 glass-input rounded-lg"
+              placeholder="johndoe123"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className={cn(
+                "w-full pl-10 pr-4 py-3 glass-input rounded-lg",
+                username && !isUsernameValid && "border-red-500",
+                username && isUsernameValid && isUsernameAvailable && "border-green-500"
+              )}
               required
             />
           </div>
+          {usernameMessage && (
+            <p className={cn(
+              "text-xs mt-1",
+              isUsernameAvailable ? "text-green-400" : "text-red-400"
+            )}>
+              {usernameMessage}
+            </p>
+          )}
         </div>
         
         <div className="space-y-2">

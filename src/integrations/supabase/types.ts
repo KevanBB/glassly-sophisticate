@@ -763,6 +763,8 @@ export type Database = {
           orientation: string | null
           role: string | null
           updated_at: string | null
+          user_number: number
+          username: string | null
         }
         Insert: {
           age?: string | null
@@ -787,6 +789,8 @@ export type Database = {
           orientation?: string | null
           role?: string | null
           updated_at?: string | null
+          user_number?: number
+          username?: string | null
         }
         Update: {
           age?: string | null
@@ -811,6 +815,8 @@ export type Database = {
           orientation?: string | null
           role?: string | null
           updated_at?: string | null
+          user_number?: number
+          username?: string | null
         }
         Relationships: []
       }

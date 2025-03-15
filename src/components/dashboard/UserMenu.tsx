@@ -35,6 +35,14 @@ const UserMenu = ({ profile, user }: UserMenuProps) => {
     setDropdownOpen(false);
   };
 
+  const navigateToProfile = () => {
+    if (profile?.username) {
+      navigateTo(`/profile/${profile.username}`);
+    } else {
+      navigateTo('/profile/setup');
+    }
+  };
+
   return (
     <Popover open={dropdownOpen} onOpenChange={setDropdownOpen}>
       <PopoverTrigger asChild>
@@ -55,17 +63,22 @@ const UserMenu = ({ profile, user }: UserMenuProps) => {
       <PopoverContent className="w-56 z-50 bg-dark-200 border border-white/10 shadow-xl rounded-lg p-1">
         <div className="flex flex-col">
           <div className="px-4 py-3 border-b border-white/10">
-            <p className="text-sm font-medium text-white">{profile?.first_name} {profile?.last_name}</p>
+            <p className="text-sm font-medium text-white">{profile?.display_name || profile?.username}</p>
             <p className="text-xs text-white/60">{user?.email}</p>
+            {profile?.user_number && (
+              <span className="inline-block mt-1 bg-primary/20 text-white text-xs px-2 py-0.5 rounded-full">
+                Member #{profile.user_number}
+              </span>
+            )}
             {isAdmin && (
-              <span className="inline-block mt-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">
+              <span className="inline-block mt-1 ml-1 bg-primary text-white text-xs px-2 py-0.5 rounded-full">
                 Admin
               </span>
             )}
           </div>
           <div className="py-1">
             <button 
-              onClick={() => navigateTo('/profile')} 
+              onClick={navigateToProfile} 
               className="flex items-center w-full px-4 py-2 text-sm text-white hover:bg-primary/20 rounded-md transition-colors"
             >
               <User size={16} className="mr-2" />
