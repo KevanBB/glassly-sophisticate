@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -82,10 +81,7 @@ const RegisterForm = () => {
       setEmailMessage('');
       
       try {
-        const { data, error } = await supabase.auth.admin.getUserByEmail(email);
-        
-        // This endpoint might not be accessible in some configurations
-        // Instead, we'll attempt a signIn which will tell us if the user exists or not
+        // Try to sign in with OTP which will tell us if the user exists
         const { error: signInError } = await supabase.auth.signInWithOtp({
           email,
           options: {
