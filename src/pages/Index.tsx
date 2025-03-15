@@ -1,9 +1,9 @@
-
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { ArrowRight, CreditCard, Wallet, Sparkles, Shield, ChevronDown, MoveRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -94,7 +94,6 @@ const Index = () => {
         <source src="https://assets.mixkit.co/sfx/preview/mixkit-tech-click-1140.mp3" type="audio/mpeg" />
       </audio>
 
-      {/* Background video and effects */}
       <div className="fixed inset-0 z-0">
         <div 
           className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"
@@ -129,7 +128,6 @@ const Index = () => {
         </video>
       </div>
 
-      {/* Floating particles effect */}
       <div className="fixed inset-0 z-10 pointer-events-none">
         {[...Array(30)].map((_, index) => (
           <motion.div
@@ -154,7 +152,6 @@ const Index = () => {
         ))}
       </div>
 
-      {/* Navigation */}
       <motion.nav
         initial={{ y: -100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -224,7 +221,6 @@ const Index = () => {
         </div>
       </motion.nav>
 
-      {/* Hero Section */}
       <main className="relative flex flex-col items-center justify-center px-4 z-20 min-h-screen" onMouseMove={handleMouseMove}>
         <AnimatePresence>
           {isLoaded && (
@@ -369,7 +365,6 @@ const Index = () => {
         </motion.div>
       </main>
 
-      {/* Features Section */}
       <section
         id="features"
         className="relative w-full py-32 z-20 bg-gradient-to-b from-black/90 to-black/100"
@@ -528,7 +523,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA Section */}
       <section className="relative w-full py-24 z-20 bg-gradient-to-b from-black to-dark-300/90">
         <div className="max-w-4xl mx-auto text-center px-6">
           <motion.h2
@@ -569,19 +563,22 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer className="relative w-full py-6 z-20 bg-black/90 border-t border-white/5">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center">
           <div className="text-crimson font-bold text-xl mb-4 md:mb-0">
             SubSpace
           </div>
-          <div className="text-white/40 text-sm">
-            © {new Date().getFullYear()} SubSpace. All rights reserved.
+          <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8">
+            <Link to="/brand-identity" className="text-white/60 hover:text-white transition-colors text-sm">
+              Brand Identity
+            </Link>
+            <div className="text-white/40 text-sm">
+              © {new Date().getFullYear()} SubSpace. All rights reserved.
+            </div>
           </div>
         </div>
       </footer>
 
-      {/* Glitch effect overlay */}
       <AnimatePresence>
         {showGlitch && (
           <motion.div 

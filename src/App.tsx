@@ -20,6 +20,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StripeConnectProvider } from './components/payments/StripeConnectProvider';
 import UserProfile from './pages/UserProfile';
 import ProfileSetup from './pages/ProfileSetup';
+import BrandIdentity from './pages/BrandIdentity';
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/brand-identity" element={<BrandIdentity />} />
             <Route 
               path="/profile/setup" 
               element={
