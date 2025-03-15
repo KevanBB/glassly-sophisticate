@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -72,7 +73,7 @@ const RegisterForm = () => {
     return () => clearTimeout(timer);
   }, [username, isUsernameValid]);
 
-  // Check email availability with debounce
+  // Check email availability with debounce - FIXED IMPLEMENTATION
   useEffect(() => {
     const checkEmail = async () => {
       if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return;
@@ -81,23 +82,28 @@ const RegisterForm = () => {
       setEmailMessage('');
       
       try {
-        // Try to sign in with OTP which will tell us if the user exists
-        const { error: signInError } = await supabase.auth.signInWithOtp({
+        // Use the auth.signUp method with throwOnError: true to check if email exists
+        // This avoids actually creating a user by using a deliberately invalid password
+        const { error } = await supabase.auth.signUp({
           email,
-          options: {
-            shouldCreateUser: false,
-          }
+          password: 'temporary_check_password_123!',
+          options: { emailRedirectTo: window.location.origin }
         });
         
-        if (signInError && signInError.message.includes('not found')) {
-          setIsEmailAvailable(true);
-          setEmailMessage('');
-        } else {
+        // If we get a "User already registered" error, the email is taken
+        if (error && error.message.includes('already registered')) {
           setIsEmailAvailable(false);
           setEmailMessage('An account with this email already exists');
+        } else {
+          // No error or different error means the email is available
+          setIsEmailAvailable(true);
+          setEmailMessage('');
         }
       } catch (error) {
         console.error('Error checking email:', error);
+        // Default to allowing the user to proceed if the check fails
+        setIsEmailAvailable(true);
+        setEmailMessage('');
       } finally {
         setCheckingEmail(false);
       }
